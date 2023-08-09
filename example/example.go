@@ -5,10 +5,11 @@ import (
 	"os"
 	"time"
 
+	"log/slog"
+
 	"github.com/gofiber/fiber/v2"
 	slogfiber "github.com/samber/slog-fiber"
 	slogformatter "github.com/samber/slog-formatter"
-	"golang.org/x/exp/slog"
 )
 
 func main() {

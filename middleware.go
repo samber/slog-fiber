@@ -5,9 +5,10 @@ import (
 	"net/http"
 	"time"
 
+	"log/slog"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"golang.org/x/exp/slog"
 )
 
 type Config struct {

@@ -2,7 +2,7 @@
 # slog: Fiber middleware
 
 [![tag](https://img.shields.io/github/tag/samber/slog-fiber.svg)](https://github.com/samber/slog-fiber/releases)
-![Go Version](https://img.shields.io/badge/Go-%3E%3D%201.20.3-%23007d9c)
+![Go Version](https://img.shields.io/badge/Go-%3E%3D%201.21-%23007d9c)
 [![GoDoc](https://godoc.org/github.com/samber/slog-fiber?status.svg)](https://pkg.go.dev/github.com/samber/slog-fiber)
 ![Build Status](https://github.com/samber/slog-fiber/actions/workflows/test.yml/badge.svg)
 [![Go report](https://goreportcard.com/badge/github.com/samber/slog-fiber)](https://goreportcard.com/report/github.com/samber/slog-fiber)
@@ -10,7 +10,7 @@
 [![Contributors](https://img.shields.io/github/contributors/samber/slog-fiber)](https://github.com/samber/slog-fiber/graphs/contributors)
 [![License](https://img.shields.io/github/license/samber/slog-fiber)](./LICENSE)
 
-[Fiber](https://github.com/gofiber/fiber) middleware to log http requests using [slog](https://pkg.go.dev/golang.org/x/exp/slog).
+[Fiber](https://github.com/gofiber/fiber) middleware to log http requests using [slog](https://pkg.go.dev/log/slog).
 
 **See also:**
 
@@ -41,11 +41,9 @@
 go get github.com/samber/slog-fiber
 ```
 
-**Compatibility**: go >= 1.20.3
+**Compatibility**: go >= 1.21
 
-This library is v0 and follows SemVer strictly. On `slog` final release (go 1.21), this library will go v1.
-
-No breaking changes will be made to exported APIs before v1.0.0.
+No breaking changes will be made to exported APIs before v2.0.0.
 
 ## 💡 Usage
 
@@ -55,7 +53,7 @@ No breaking changes will be made to exported APIs before v1.0.0.
 import (
 	"github.com/gofiber/fiber/v2"
 	slogfiber "github.com/samber/slog-fiber"
-	"golang.org/x/exp/slog"
+	"log/slog"
 )
 
 // Create a slog logger, which:
@@ -83,7 +81,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	slogfiber "github.com/samber/slog-fiber"
 	slogformatter "github.com/samber/slog-formatter"
-	"golang.org/x/exp/slog"
+	"log/slog"
 )
 
 // Create a slog logger, which:
@@ -118,7 +116,7 @@ app.Listen(":4242")
 import (
 	"github.com/gofiber/fiber/v2"
 	slogfiber "github.com/samber/slog-fiber"
-	"golang.org/x/exp/slog"
+	"log/slog"
 )
 
 // Create a slog logger, which:
@@ -145,7 +143,7 @@ app.Listen(":4242")
 import (
 	"github.com/gofiber/fiber/v2"
 	slogfiber "github.com/samber/slog-fiber"
-	"golang.org/x/exp/slog"
+	"log/slog"
 )
 
 // Create a slog logger, which:
@@ -172,7 +170,7 @@ app.Listen(":4242")
 import (
 	"github.com/gofiber/fiber/v2"
 	slogfiber "github.com/samber/slog-fiber"
-	"golang.org/x/exp/slog"
+	"log/slog"
 )
 
 // Create a slog logger, which:
@@ -202,7 +200,7 @@ app.Listen(":4242")
 import (
 	"github.com/gofiber/fiber/v2"
 	slogfiber "github.com/samber/slog-fiber"
-	"golang.org/x/exp/slog"
+	"log/slog"
 )
 
 // Create a slog logger, which:
