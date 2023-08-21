@@ -59,7 +59,7 @@ import (
 
 // Create a slog logger, which:
 //   - Logs to stdout.
-logger := slog.New(slog.NewTextHandler(os.Stdout))
+logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 app := fiber.New()
 
@@ -93,7 +93,7 @@ logger := slog.New(
 		slogformatter.TimezoneConverter(time.UTC),
 		slogformatter.TimeFormatter(time.RFC3339, nil),
 	)(
-		slog.NewTextHandler(os.Stdout),
+		slog.NewTextHandler(os.Stdout, nil),
 	),
 )
 
@@ -122,7 +122,7 @@ import (
 
 // Create a slog logger, which:
 //   - Logs to stdout.
-logger := slog.New(slog.NewTextHandler(os.Stdout))
+logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 app := fiber.New()
 
@@ -149,7 +149,7 @@ import (
 
 // Create a slog logger, which:
 //   - Logs to stdout.
-logger := slog.New(slog.NewTextHandler(os.Stdout))
+logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 app := fiber.New()
 
@@ -176,7 +176,7 @@ import (
 
 // Create a slog logger, which:
 //   - Logs to stdout.
-logger := slog.New(slog.NewTextHandler(os.Stdout))
+logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 // Add an attribute to all log entries made through this logger.
 logger = logger.With("env", "production")
@@ -206,7 +206,7 @@ import (
 
 // Create a slog logger, which:
 //   - Logs to stdout.
-logger := slog.New(slog.NewTextHandler(os.Stdout)),
+logger := slog.New(slog.NewTextHandler(os.Stdout, nil)),
 
 app := fiber.New()
 
