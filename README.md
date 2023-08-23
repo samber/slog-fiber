@@ -206,7 +206,7 @@ import (
 
 // Create a slog logger, which:
 //   - Logs to stdout.
-logger := slog.New(slog.NewTextHandler(os.Stdout, nil)),
+logger := slog.New(slog.NewJSONHandler(os.Stdout, nil)),
 
 app := fiber.New()
 
