@@ -51,14 +51,23 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		end := time.Now()
 		latency := end.Sub(start)
 
+		ip := c.Context().RemoteIP().String()
+		if len(c.IPs()) > 0 {
+			ip = c.IPs()[0]
+		}
+
 		attributes := []slog.Attr{
 			slog.Int("status", c.Response().StatusCode()),
 			slog.String("method", string(c.Context().Method())),
 			slog.String("path", path),
-			slog.String("ip", c.Context().RemoteIP().String()),
+			slog.Any("ip", ip),
 			slog.Duration("latency", latency),
 			slog.String("user-agent", string(c.Context().UserAgent())),
 			slog.Time("time", end),
+		}
+
+		if len(c.IPs()) > 0 {
+			attributes = append(attributes, slog.Any("x-forwarded-for", c.IPs()))
 		}
 
 		if config.WithRequestID {
