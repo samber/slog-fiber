@@ -57,13 +57,13 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		}
 
 		attributes := []slog.Attr{
-			slog.Int("status", c.Response().StatusCode()),
+			slog.Time("time", end),
+			slog.Duration("latency", latency),
 			slog.String("method", string(c.Context().Method())),
 			slog.String("path", path),
-			slog.Any("ip", ip),
-			slog.Duration("latency", latency),
+			slog.Int("status", c.Response().StatusCode()),
+			slog.String("ip", ip),
 			slog.String("user-agent", string(c.Context().UserAgent())),
-			slog.Time("time", end),
 		}
 
 		if len(c.IPs()) > 0 {
