@@ -60,10 +60,13 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 			slog.Time("time", end),
 			slog.Duration("latency", latency),
 			slog.String("method", string(c.Context().Method())),
+			slog.String("host", c.Hostname()),
 			slog.String("path", path),
+			slog.String("route", c.Route().Path),
 			slog.Int("status", c.Response().StatusCode()),
 			slog.String("ip", ip),
 			slog.String("user-agent", string(c.Context().UserAgent())),
+			slog.String("referer", c.Get(fiber.HeaderReferer)),
 		}
 
 		if len(c.IPs()) > 0 {
@@ -72,6 +75,11 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 
 		if config.WithRequestID {
 			attributes = append(attributes, slog.String("request-id", requestID))
+		}
+
+		// if err == nil && c.Response().StatusCode() >= http.StatusBadRequest {
+		if err == nil {
+			err = fiber.NewError(c.Response().StatusCode())
 		}
 
 		switch {
