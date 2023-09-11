@@ -77,16 +77,16 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 			attributes = append(attributes, slog.String("request-id", requestID))
 		}
 
-		// if err == nil && c.Response().StatusCode() >= http.StatusBadRequest {
-		if err == nil {
-			err = fiber.NewError(c.Response().StatusCode())
+		logErr := err
+		if logErr == nil {
+			logErr = fiber.NewError(c.Response().StatusCode())
 		}
 
 		switch {
 		case c.Response().StatusCode() >= http.StatusBadRequest && c.Response().StatusCode() < http.StatusInternalServerError:
-			logger.LogAttrs(context.Background(), config.ClientErrorLevel, err.Error(), attributes...)
+			logger.LogAttrs(context.Background(), config.ClientErrorLevel, logErr.Error(), attributes...)
 		case c.Response().StatusCode() >= http.StatusInternalServerError:
-			logger.LogAttrs(context.Background(), config.ServerErrorLevel, err.Error(), attributes...)
+			logger.LogAttrs(context.Background(), config.ServerErrorLevel, logErr.Error(), attributes...)
 		default:
 			logger.LogAttrs(context.Background(), config.DefaultLevel, "Incoming request", attributes...)
 		}
