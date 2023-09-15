@@ -75,6 +75,48 @@ app.Listen(":4242")
 // time=2023-04-10T14:00:00.000+00:00 level=INFO msg="Incoming request" status=200 method=GET path=/ ip=::1 latency=25.958µs user-agent=curl/7.77.0 time=2023-04-10T14:00:00.000+00:00 request-id=229c7fc8-64f5-4467-bc4a-940700503b0d
 ```
 
+### Filters
+
+```go
+import (
+	"github.com/gofiber/fiber/v2"
+	slogfiber "github.com/samber/slog-fiber"
+	"log/slog"
+)
+
+// Create a slog logger, which:
+//   - Logs to stdout.
+logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+
+app := fiber.New()
+app.Use(
+	slogfiber.NewWithFilters(
+		logger,
+		slogfiber.Accept(func (c *fiber.Ctx) bool {
+			return xxx
+		}),
+		slogfiber.IgnoreStatus(401, 404),
+	),
+)
+```
+
+Available filters:
+- Accept / Ignore
+- AcceptMethod / IgnoreMethod
+- AcceptStatus / IgnoreStatus
+- AcceptStatusGreaterThan / IgnoreStatusLessThan
+- AcceptStatusGreaterThanOrEqual / IgnoreStatusLessThanOrEqual
+- AcceptPath / IgnorePath
+- AcceptPathContains / IgnorePathContains
+- AcceptPathPrefix / IgnorePathPrefix
+- AcceptPathSuffix / IgnorePathSuffix
+- AcceptPathMatch / IgnorePathMatch
+- AcceptHost / IgnoreHost
+- AcceptHostContains / IgnoreHostContains
+- AcceptHostPrefix / IgnoreHostPrefix
+- AcceptHostSuffix / IgnoreHostSuffix
+- AcceptHostMatch / IgnoreHostMatch
+
 ### Using custom time formatters
 
 ```go

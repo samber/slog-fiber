@@ -17,6 +17,8 @@ type Config struct {
 	ServerErrorLevel slog.Level
 
 	WithRequestID bool
+
+	Filters []Filter
 }
 
 // New returns a fiber.Handler (middleware) that logs requests using slog.
@@ -30,6 +32,8 @@ func New(logger *slog.Logger) fiber.Handler {
 		ServerErrorLevel: slog.LevelError,
 
 		WithRequestID: true,
+
+		Filters: []Filter{},
 	})
 }
 
@@ -80,6 +84,12 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		// if err == nil && c.Response().StatusCode() >= http.StatusBadRequest {
 		if err == nil {
 			err = fiber.NewError(c.Response().StatusCode())
+		}
+
+		for _, filter := range config.Filters {
+			if !filter(c) {
+				return err
+			}
 		}
 
 		switch {
