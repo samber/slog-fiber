@@ -76,7 +76,7 @@ app.Get("/", func(c *fiber.Ctx) error {
 app.Listen(":4242")
 
 // output:
-// time=2023-04-10T14:00:00.000+00:00 level=INFO msg="Incoming request" status=200 method=GET path=/ ip=::1 latency=25.958µs user-agent=curl/7.77.0 time=2023-04-10T14:00:00.000+00:00 request-id=229c7fc8-64f5-4467-bc4a-940700503b0d
+// time=2023-04-10T14:00:00.000+00:00 level=INFO msg="Incoming request" status=200 method=GET path=/ route=/ ip=::1 latency=25.958µs user-agent=curl/7.77.0 time=2023-04-10T14:00:00.000+00:00 request-id=229c7fc8-64f5-4467-bc4a-940700503b0d
 ```
 
 ### Filters
@@ -154,7 +154,7 @@ app.Get("/", func(c *fiber.Ctx) error {
 app.Listen(":4242")
 
 // output:
-// time=2023-04-10T14:00:00.000+00:00 level=INFO msg="Incoming request" status=200 method=GET path=/ ip=::1 latency=25.958µs user-agent=curl/7.77.0 time=2023-04-10T14:00:00Z request-id=229c7fc8-64f5-4467-bc4a-940700503b0d
+// time=2023-04-10T14:00:00.000+00:00 level=INFO msg="Incoming request" status=200 method=GET path=/ route=/ ip=::1 latency=25.958µs user-agent=curl/7.77.0 time=2023-04-10T14:00:00Z request-id=229c7fc8-64f5-4467-bc4a-940700503b0d
 ```
 
 ### Using custom logger sub-group
@@ -181,7 +181,7 @@ app.Get("/", func(c *fiber.Ctx) error {
 app.Listen(":4242")
 
 // output:
-// time=2023-04-10T14:00:00.000+00:00 level=INFO msg="Incoming request" http.status=200 http.method=GET http.path=/ http.ip=::1 http.latency=25.958µs http.user-agent=curl/7.77.0 http.time=2023-04-10T14:00:00Z http.request-id=229c7fc8-64f5-4467-bc4a-940700503b0d
+// time=2023-04-10T14:00:00.000+00:00 level=INFO msg="Incoming request" http.status=200 http.method=GET http.path=/ http.route=/ http.ip=::1 http.latency=25.958µs http.user-agent=curl/7.77.0 http.time=2023-04-10T14:00:00Z http.request-id=229c7fc8-64f5-4467-bc4a-940700503b0d
 ```
 
 ### Add logger to a single route
@@ -208,7 +208,7 @@ app.Get("/", func(c *fiber.Ctx) error {
 app.Listen(":4242")
 
 // output:
-// time=2023-04-10T14:00:00.000+00:00 level=INFO msg="Incoming request" status=200 method=GET path=/ ip=::1 latency=25.958µs user-agent=curl/7.77.0 time=2023-04-10T14:00:00Z request-id=229c7fc8-64f5-4467-bc4a-940700503b0d
+// time=2023-04-10T14:00:00.000+00:00 level=INFO msg="Incoming request" status=200 method=GET path=/ route=/ ip=::1 latency=25.958µs user-agent=curl/7.77.0 time=2023-04-10T14:00:00Z request-id=229c7fc8-64f5-4467-bc4a-940700503b0d
 ```
 
 ### Adding custom attributes
@@ -238,7 +238,7 @@ app.Get("/", func(c *fiber.Ctx) error {
 app.Listen(":4242")
 
 // output:
-// time=2023-04-10T14:00:00.000+00:00 level=INFO msg="Incoming request" env=production status=200 method=GET path=/ ip=::1 latency=25.958µs user-agent=curl/7.77.0 time=2023-04-10T14:00:00Z request-id=229c7fc8-64f5-4467-bc4a-940700503b0d
+// time=2023-04-10T14:00:00.000+00:00 level=INFO msg="Incoming request" env=production status=200 method=GET path=/ route=/ ip=::1 latency=25.958µs user-agent=curl/7.77.0 time=2023-04-10T14:00:00Z request-id=229c7fc8-64f5-4467-bc4a-940700503b0d
 ```
 
 ### JSON output

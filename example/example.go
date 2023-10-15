@@ -35,6 +35,9 @@ func main() {
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World 👋!")
 	})
+	app.Get("/foobar/:id", func(c *fiber.Ctx) error {
+		return c.SendString("Hello, World 👋!")
+	})
 
 	err := app.Listen(":4242")
 	if err != nil {
@@ -42,5 +45,5 @@ func main() {
 	}
 
 	// output:
-	// time=2023-04-10T14:00:00.000+00:00 level=INFO msg="Incoming request" env=production http.status=200 http.method=GET http.path=/ http.ip=::1 http.latency=25.958µs http.user-agent=curl/7.77.0 http.time=2023-04-10T14:00:00Z http.request-id=229c7fc8-64f5-4467-bc4a-940700503b0d
+	// time=2023-04-10T14:00:00.000+00:00 level=INFO msg="Incoming request" env=production http.status=200 http.method=GET http.path=/ http.route=/ http.ip=::1 http.latency=25.958µs http.user-agent=curl/7.77.0 http.time=2023-04-10T14:00:00Z http.request-id=229c7fc8-64f5-4467-bc4a-940700503b0d
 }
