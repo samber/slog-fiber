@@ -31,8 +31,11 @@ func main() {
 	app := fiber.New()
 
 	app.Use(slogfiber.New(logger.WithGroup("http")))
+	// config := slogfiber.Config{WithRequestBody: true, WithResponseBody: true, WithRequestHeader: true, WithResponseHeader: true}
+	// app.Use(slogfiber.NewWithConfig(logger, config))
 
 	app.Get("/", func(c *fiber.Ctx) error {
+		slogfiber.AddCustomAttributes(c, slog.String("foo", "bar"))
 		return c.SendString("Hello, World 👋!")
 	})
 	app.Get("/foobar/:id", func(c *fiber.Ctx) error {

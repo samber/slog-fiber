@@ -79,17 +79,25 @@ app.Listen(":4242")
 // time=2023-04-10T14:00:00.000+00:00 level=INFO msg="Incoming request" status=200 method=GET path=/ route=/ ip=::1 latency=25.958µs user-agent=curl/7.77.0 time=2023-04-10T14:00:00.000+00:00 request-id=229c7fc8-64f5-4467-bc4a-940700503b0d
 ```
 
+### Verbose
+
+```go
+logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+
+config := sloggin.Config{
+	WithRequestBody: true,
+	WithResponseBody: true,
+	WithRequestHeader: true,
+	WithResponseHeader: true,
+}
+
+app := fiber.New()
+app.Use(slogfiber.NewWithConfig(logger, config))
+```
+
 ### Filters
 
 ```go
-import (
-	"github.com/gofiber/fiber/v2"
-	slogfiber "github.com/samber/slog-fiber"
-	"log/slog"
-)
-
-// Create a slog logger, which:
-//   - Logs to stdout.
 logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 app := fiber.New()
@@ -124,13 +132,6 @@ Available filters:
 ### Using custom time formatters
 
 ```go
-import (
-	"github.com/gofiber/fiber/v2"
-	slogfiber "github.com/samber/slog-fiber"
-	slogformatter "github.com/samber/slog-formatter"
-	"log/slog"
-)
-
 // Create a slog logger, which:
 //   - Logs to stdout.
 //   - RFC3339 with UTC time format.
@@ -160,14 +161,6 @@ app.Listen(":4242")
 ### Using custom logger sub-group
 
 ```go
-import (
-	"github.com/gofiber/fiber/v2"
-	slogfiber "github.com/samber/slog-fiber"
-	"log/slog"
-)
-
-// Create a slog logger, which:
-//   - Logs to stdout.
 logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 app := fiber.New()
@@ -187,14 +180,6 @@ app.Listen(":4242")
 ### Add logger to a single route
 
 ```go
-import (
-	"github.com/gofiber/fiber/v2"
-	slogfiber "github.com/samber/slog-fiber"
-	"log/slog"
-)
-
-// Create a slog logger, which:
-//   - Logs to stdout.
 logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 app := fiber.New()
@@ -214,14 +199,6 @@ app.Listen(":4242")
 ### Adding custom attributes
 
 ```go
-import (
-	"github.com/gofiber/fiber/v2"
-	slogfiber "github.com/samber/slog-fiber"
-	"log/slog"
-)
-
-// Create a slog logger, which:
-//   - Logs to stdout.
 logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 // Add an attribute to all log entries made through this logger.
@@ -229,29 +206,23 @@ logger = logger.With("env", "production")
 
 app := fiber.New()
 
-app.Use(slogfiber.New(logger.WithGroup("http")))
+app.Use(slogfiber.New(logger))
 
 app.Get("/", func(c *fiber.Ctx) error {
+	// Add an attribute to a single log entry.
+	slogfiber.AddCustomAttributes(c, slog.String("foo", "bar"))
 	return c.SendString("Hello, World 👋!")
 })
 
 app.Listen(":4242")
 
 // output:
-// time=2023-04-10T14:00:00.000+00:00 level=INFO msg="Incoming request" env=production status=200 method=GET path=/ route=/ ip=::1 latency=25.958µs user-agent=curl/7.77.0 time=2023-04-10T14:00:00Z request-id=229c7fc8-64f5-4467-bc4a-940700503b0d
+// time=2023-04-10T14:00:00.000+00:00 level=INFO msg="Incoming request" env=production status=200 method=GET path=/ route=/ ip=::1 latency=25.958µs user-agent=curl/7.77.0 time=2023-04-10T14:00:00Z request-id=229c7fc8-64f5-4467-bc4a-940700503b0d foo=bar
 ```
 
 ### JSON output
 
 ```go
-import (
-	"github.com/gofiber/fiber/v2"
-	slogfiber "github.com/samber/slog-fiber"
-	"log/slog"
-)
-
-// Create a slog logger, which:
-//   - Logs to stdout.
 logger := slog.New(slog.NewJSONHandler(os.Stdout, nil)),
 
 app := fiber.New()

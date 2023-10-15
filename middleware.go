@@ -3,6 +3,7 @@ package slogfiber
 import (
 	"context"
 	"net/http"
+	"strings"
 	"time"
 
 	"log/slog"
@@ -11,12 +12,34 @@ import (
 	"github.com/google/uuid"
 )
 
+const (
+	customAttributesCtxKey = "slog-fiber.custom-attributes"
+)
+
+var (
+	HiddenRequestHeaders = map[string]struct{}{
+		"authorization": {},
+		"cookie":        {},
+		"set-cookie":    {},
+		"x-auth-token":  {},
+		"x-csrf-token":  {},
+		"x-xsrf-token":  {},
+	}
+	HiddenResponseHeaders = map[string]struct{}{
+		"set-cookie": {},
+	}
+)
+
 type Config struct {
 	DefaultLevel     slog.Level
 	ClientErrorLevel slog.Level
 	ServerErrorLevel slog.Level
 
-	WithRequestID bool
+	WithRequestID      bool
+	WithRequestBody    bool
+	WithRequestHeader  bool
+	WithResponseBody   bool
+	WithResponseHeader bool
 
 	Filters []Filter
 }
@@ -31,9 +54,33 @@ func New(logger *slog.Logger) fiber.Handler {
 		ClientErrorLevel: slog.LevelWarn,
 		ServerErrorLevel: slog.LevelError,
 
-		WithRequestID: true,
+		WithRequestID:      true,
+		WithRequestBody:    false,
+		WithRequestHeader:  false,
+		WithResponseBody:   false,
+		WithResponseHeader: false,
 
 		Filters: []Filter{},
+	})
+}
+
+// NewWithFilters returns a fiber.Handler (middleware) that logs requests using slog.
+//
+// Requests with errors are logged using slog.Error().
+// Requests without errors are logged using slog.Info().
+func NewWithFilters(logger *slog.Logger, filters ...Filter) fiber.Handler {
+	return NewWithConfig(logger, Config{
+		DefaultLevel:     slog.LevelInfo,
+		ClientErrorLevel: slog.LevelWarn,
+		ServerErrorLevel: slog.LevelError,
+
+		WithRequestID:      true,
+		WithRequestBody:    false,
+		WithRequestHeader:  false,
+		WithResponseBody:   false,
+		WithResponseHeader: false,
+
+		Filters: filters,
 	})
 }
 
@@ -81,6 +128,40 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 			attributes = append(attributes, slog.String("request-id", requestID))
 		}
 
+		// request
+		if config.WithRequestBody {
+			attributes = append(attributes, slog.Group("request", slog.String("body", string(c.Body()))))
+		}
+		if config.WithRequestHeader {
+			for k, v := range c.GetReqHeaders() {
+				if _, found := HiddenRequestHeaders[strings.ToLower(k)]; found {
+					continue
+				}
+				attributes = append(attributes, slog.Group("request", slog.Group("header", slog.Any(k, v))))
+			}
+		}
+
+		// response
+		if config.WithResponseBody {
+			attributes = append(attributes, slog.Group("response", slog.String("body", string(c.Response().Body()))))
+		}
+		if config.WithResponseHeader {
+			for k, v := range c.GetRespHeaders() {
+				if _, found := HiddenResponseHeaders[strings.ToLower(k)]; found {
+					continue
+				}
+				attributes = append(attributes, slog.Group("response", slog.Group("header", slog.Any(k, v))))
+			}
+		}
+
+		// custom context values
+		if v := c.Context().UserValue(customAttributesCtxKey); v != nil {
+			switch attrs := v.(type) {
+			case []slog.Attr:
+				attributes = append(attributes, attrs...)
+			}
+		}
+
 		logErr := err
 		if logErr == nil {
 			logErr = fiber.NewError(c.Response().StatusCode())
@@ -113,4 +194,17 @@ func GetRequestID(c *fiber.Ctx) string {
 	}
 
 	return requestID
+}
+
+func AddCustomAttributes(c *fiber.Ctx, attr slog.Attr) {
+	v := c.Context().UserValue(customAttributesCtxKey)
+	if v == nil {
+		c.Context().SetUserValue(customAttributesCtxKey, []slog.Attr{attr})
+		return
+	}
+
+	switch attrs := v.(type) {
+	case []slog.Attr:
+		c.Context().SetUserValue(customAttributesCtxKey, append(attrs, attr))
+	}
 }
