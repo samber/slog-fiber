@@ -14,13 +14,13 @@ require (
 	github.com/samber/lo v1.38.1 // indirect
 	github.com/samber/slog-multi v1.0.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.49.0 // indirect
+	github.com/valyala/fasthttp v1.50.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
-	golang.org/x/sys v0.12.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
 )
 
 require (
-	github.com/gofiber/fiber/v2 v2.49.2
+	github.com/gofiber/fiber/v2 v2.50.0
 	github.com/google/uuid v1.3.1
 	github.com/samber/slog-formatter v1.0.0
 	go.uber.org/goleak v1.2.1
