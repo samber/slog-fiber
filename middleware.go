@@ -17,6 +17,9 @@ const (
 )
 
 var (
+	RequestBodyMaxSize  = 64 * 1024 // 64KB
+	ResponseBodyMaxSize = 64 * 1024 // 64KB
+
 	HiddenRequestHeaders = map[string]struct{}{
 		"authorization": {},
 		"cookie":        {},
@@ -130,7 +133,11 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 
 		// request
 		if config.WithRequestBody {
-			attributes = append(attributes, slog.Group("request", slog.String("body", string(c.Body()))))
+			body := c.Body()
+			if len(body) > RequestBodyMaxSize {
+				body = body[:RequestBodyMaxSize]
+			}
+			attributes = append(attributes, slog.Group("request", slog.String("body", string(body))))
 		}
 		if config.WithRequestHeader {
 			for k, v := range c.GetReqHeaders() {
@@ -143,7 +150,11 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 
 		// response
 		if config.WithResponseBody {
-			attributes = append(attributes, slog.Group("response", slog.String("body", string(c.Response().Body()))))
+			body := c.Response().Body()
+			if len(body) > ResponseBodyMaxSize {
+				body = body[:ResponseBodyMaxSize]
+			}
+			attributes = append(attributes, slog.Group("response", slog.String("body", string(body))))
 		}
 		if config.WithResponseHeader {
 			for k, v := range c.GetRespHeaders() {
