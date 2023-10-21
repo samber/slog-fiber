@@ -104,6 +104,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 
 		end := time.Now()
 		latency := end.Sub(start)
+		status := c.Response().StatusCode()
 
 		ip := c.Context().RemoteIP().String()
 		if len(c.IPs()) > 0 {
@@ -117,7 +118,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 			slog.String("host", c.Hostname()),
 			slog.String("path", path),
 			slog.String("route", c.Route().Path),
-			slog.Int("status", c.Response().StatusCode()),
+			slog.Int("status", status),
 			slog.String("ip", ip),
 			slog.String("user-agent", string(c.Context().UserAgent())),
 			slog.String("referer", c.Get(fiber.HeaderReferer)),
@@ -175,7 +176,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 
 		logErr := err
 		if logErr == nil {
-			logErr = fiber.NewError(c.Response().StatusCode())
+			logErr = fiber.NewError(status)
 		}
 
 		for _, filter := range config.Filters {
@@ -184,14 +185,17 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 			}
 		}
 
-		switch {
-		case c.Response().StatusCode() >= http.StatusBadRequest && c.Response().StatusCode() < http.StatusInternalServerError:
-			logger.LogAttrs(context.Background(), config.ClientErrorLevel, logErr.Error(), attributes...)
-		case c.Response().StatusCode() >= http.StatusInternalServerError:
-			logger.LogAttrs(context.Background(), config.ServerErrorLevel, logErr.Error(), attributes...)
-		default:
-			logger.LogAttrs(context.Background(), config.DefaultLevel, "Incoming request", attributes...)
+		level := config.DefaultLevel
+		msg := "Incoming request"
+		if status >= http.StatusInternalServerError {
+			level = config.ServerErrorLevel
+			msg = err.Error()
+		} else if status >= http.StatusBadRequest && status < http.StatusInternalServerError {
+			level = config.ClientErrorLevel
+			msg = err.Error()
 		}
+
+		logger.LogAttrs(context.Background(), level, msg, attributes...)
 
 		return err
 	}
