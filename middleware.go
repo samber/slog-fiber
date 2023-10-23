@@ -1,7 +1,6 @@
 package slogfiber
 
 import (
-	"context"
 	"net/http"
 	"strings"
 	"time"
@@ -195,7 +194,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 			msg = err.Error()
 		}
 
-		logger.LogAttrs(context.Background(), level, msg, attributes...)
+		logger.LogAttrs(c.UserContext(), level, msg, attributes...)
 
 		return err
 	}
