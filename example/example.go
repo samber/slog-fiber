@@ -8,6 +8,7 @@ import (
 	"log/slog"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/recover"
 	slogfiber "github.com/samber/slog-fiber"
 	slogformatter "github.com/samber/slog-formatter"
 )
@@ -33,6 +34,7 @@ func main() {
 	app.Use(slogfiber.New(logger.WithGroup("http")))
 	// config := slogfiber.Config{WithRequestBody: true, WithResponseBody: true, WithRequestHeader: true, WithResponseHeader: true}
 	// app.Use(slogfiber.NewWithConfig(logger, config))
+	app.Use(recover.New())
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		slogfiber.AddCustomAttributes(c, slog.String("foo", "bar"))
