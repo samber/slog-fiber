@@ -40,6 +40,11 @@ func main() {
 		slogfiber.AddCustomAttributes(c, slog.String("foo", "bar"))
 		return c.SendString("Hello, World 👋!")
 	})
+
+	app.Get("/crashme", func(c *fiber.Ctx) error {
+		return c.Status(400).SendString("Oops i crashed :(")
+	})
+
 	app.Get("/foobar/:id", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World 👋!")
 	})

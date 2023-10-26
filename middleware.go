@@ -180,7 +180,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 
 		for _, filter := range config.Filters {
 			if !filter(c) {
-				return err
+				return logErr
 			}
 		}
 
@@ -188,10 +188,10 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		msg := "Incoming request"
 		if status >= http.StatusInternalServerError {
 			level = config.ServerErrorLevel
-			msg = err.Error()
+			msg = logErr.Error()
 		} else if status >= http.StatusBadRequest && status < http.StatusInternalServerError {
 			level = config.ClientErrorLevel
-			msg = err.Error()
+			msg = logErr.Error()
 		}
 
 		logger.LogAttrs(c.UserContext(), level, msg, attributes...)
