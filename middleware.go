@@ -9,6 +9,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"go.opentelemetry.io/otel/trace"
 )
 
 const (
@@ -42,6 +43,8 @@ type Config struct {
 	WithRequestHeader  bool
 	WithResponseBody   bool
 	WithResponseHeader bool
+	WithSpanID         bool
+	WithTraceID        bool
 
 	Filters []Filter
 }
@@ -61,6 +64,8 @@ func New(logger *slog.Logger) fiber.Handler {
 		WithRequestHeader:  false,
 		WithResponseBody:   false,
 		WithResponseHeader: false,
+		WithSpanID:         false,
+		WithTraceID:        false,
 
 		Filters: []Filter{},
 	})
@@ -81,6 +86,8 @@ func NewWithFilters(logger *slog.Logger, filters ...Filter) fiber.Handler {
 		WithRequestHeader:  false,
 		WithResponseBody:   false,
 		WithResponseHeader: false,
+		WithSpanID:         false,
+		WithTraceID:        false,
 
 		Filters: filters,
 	})
@@ -129,6 +136,16 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 
 		if config.WithRequestID {
 			attributes = append(attributes, slog.String("request-id", requestID))
+		}
+
+		// otel
+		if config.WithTraceID {
+			traceID := trace.SpanFromContext(c.Context()).SpanContext().TraceID().String()
+			attributes = append(attributes, slog.String("trace-id", traceID))
+		}
+		if config.WithSpanID {
+			spanID := trace.SpanFromContext(c.Context()).SpanContext().SpanID().String()
+			attributes = append(attributes, slog.String("span-id", spanID))
 		}
 
 		// request

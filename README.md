@@ -81,6 +81,20 @@ app.Listen(":4242")
 // time=2023-04-10T14:00:00.000+00:00 level=INFO msg="Incoming request" status=200 method=GET path=/ route=/ ip=::1 latency=25.958µs user-agent=curl/7.77.0 time=2023-04-10T14:00:00.000+00:00 request-id=229c7fc8-64f5-4467-bc4a-940700503b0d
 ```
 
+### OTEL
+
+```go
+logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+
+config := sloggin.Config{
+	WithSpanID:  true,
+	WithTraceID: true,
+}
+
+app := fiber.New()
+app.Use(slogfiber.NewWithConfig(logger, config))
+```
+
 ### Verbose
 
 ```go
