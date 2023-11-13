@@ -49,6 +49,11 @@ func main() {
 		return c.SendString("Hello, World 👋!")
 	})
 
+	// 404 Handler
+	app.Use(func(c *fiber.Ctx) error {
+		return c.SendStatus(fiber.StatusNotFound)
+	})
+
 	err := app.Listen(":4242")
 	if err != nil {
 		fmt.Println(err.Error())
