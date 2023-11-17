@@ -12,49 +12,12 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-const (
-	customAttributesCtxKey = "slog-fiber.custom-attributes"
-)
-
-var (
-	RequestBodyMaxSize  = 64 * 1024 // 64KB
-	ResponseBodyMaxSize = 64 * 1024 // 64KB
-
-	HiddenRequestHeaders = map[string]struct{}{
-		"authorization": {},
-		"cookie":        {},
-		"set-cookie":    {},
-		"x-auth-token":  {},
-		"x-csrf-token":  {},
-		"x-xsrf-token":  {},
-	}
-	HiddenResponseHeaders = map[string]struct{}{
-		"set-cookie": {},
-	}
-)
-
-type Config struct {
-	DefaultLevel     slog.Level
-	ClientErrorLevel slog.Level
-	ServerErrorLevel slog.Level
-
-	WithRequestID      bool
-	WithRequestBody    bool
-	WithRequestHeader  bool
-	WithResponseBody   bool
-	WithResponseHeader bool
-	WithSpanID         bool
-	WithTraceID        bool
-
-	Filters []Filter
-}
-
-// New returns a fiber.Handler (middleware) that logs requests using slog.
+// NewMiddleware returns a fiber.Handler (middleware) that logs requests using slog.
 //
 // Requests with errors are logged using slog.Error().
 // Requests without errors are logged using slog.Info().
-func New(logger *slog.Logger) fiber.Handler {
-	return NewWithConfig(logger, Config{
+func NewMiddleware(logger *slog.Logger) fiber.Handler {
+	return NewMiddlewareWithConfig(logger, Config{
 		DefaultLevel:     slog.LevelInfo,
 		ClientErrorLevel: slog.LevelWarn,
 		ServerErrorLevel: slog.LevelError,
@@ -71,12 +34,12 @@ func New(logger *slog.Logger) fiber.Handler {
 	})
 }
 
-// NewWithFilters returns a fiber.Handler (middleware) that logs requests using slog.
+// NewMiddlewareWithFilters returns a fiber.Handler (middleware) that logs requests using slog.
 //
 // Requests with errors are logged using slog.Error().
 // Requests without errors are logged using slog.Info().
-func NewWithFilters(logger *slog.Logger, filters ...Filter) fiber.Handler {
-	return NewWithConfig(logger, Config{
+func NewMiddlewareWithFilters(logger *slog.Logger, filters ...Filter) fiber.Handler {
+	return NewMiddlewareWithConfig(logger, Config{
 		DefaultLevel:     slog.LevelInfo,
 		ClientErrorLevel: slog.LevelWarn,
 		ServerErrorLevel: slog.LevelError,
@@ -93,12 +56,10 @@ func NewWithFilters(logger *slog.Logger, filters ...Filter) fiber.Handler {
 	})
 }
 
-// NewWithConfig returns a fiber.Handler (middleware) that logs requests using slog.
-func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
+// NewMiddlewareWithConfig returns a fiber.Handler (middleware) that logs requests using slog.
+func NewMiddlewareWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		c.Path()
 		start := time.Now()
-		path := c.Path()
 
 		requestID := uuid.New().String()
 		if config.WithRequestID {
@@ -108,134 +69,120 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 
 		err := c.Next()
 
-		end := time.Now()
-		latency := end.Sub(start)
-		status := c.Response().StatusCode()
-
-		ip := c.Context().RemoteIP().String()
-		if len(c.IPs()) > 0 {
-			ip = c.IPs()[0]
-		}
-
-		attributes := []slog.Attr{
-			slog.Time("time", end),
-			slog.Duration("latency", latency),
-			slog.String("method", string(c.Context().Method())),
-			slog.String("host", c.Hostname()),
-			slog.String("path", path),
-			slog.String("route", c.Route().Path),
-			slog.Int("status", status),
-			slog.String("ip", ip),
-			slog.String("user-agent", string(c.Context().UserAgent())),
-			slog.String("referer", c.Get(fiber.HeaderReferer)),
-		}
-
-		if len(c.IPs()) > 0 {
-			attributes = append(attributes, slog.Any("x-forwarded-for", c.IPs()))
-		}
-
-		if config.WithRequestID {
-			attributes = append(attributes, slog.String("request-id", requestID))
-		}
-
-		// otel
-		if config.WithTraceID {
-			traceID := trace.SpanFromContext(c.Context()).SpanContext().TraceID().String()
-			attributes = append(attributes, slog.String("trace-id", traceID))
-		}
-		if config.WithSpanID {
-			spanID := trace.SpanFromContext(c.Context()).SpanContext().SpanID().String()
-			attributes = append(attributes, slog.String("span-id", spanID))
-		}
-
-		// request
-		if config.WithRequestBody {
-			body := c.Body()
-			if len(body) > RequestBodyMaxSize {
-				body = body[:RequestBodyMaxSize]
-			}
-			attributes = append(attributes, slog.Group("request", slog.String("body", string(body))))
-		}
-		if config.WithRequestHeader {
-			for k, v := range c.GetReqHeaders() {
-				if _, found := HiddenRequestHeaders[strings.ToLower(k)]; found {
-					continue
-				}
-				attributes = append(attributes, slog.Group("request", slog.Group("header", slog.Any(k, v))))
-			}
-		}
-
-		// response
-		if config.WithResponseBody {
-			body := c.Response().Body()
-			if len(body) > ResponseBodyMaxSize {
-				body = body[:ResponseBodyMaxSize]
-			}
-			attributes = append(attributes, slog.Group("response", slog.String("body", string(body))))
-		}
-		if config.WithResponseHeader {
-			for k, v := range c.GetRespHeaders() {
-				if _, found := HiddenResponseHeaders[strings.ToLower(k)]; found {
-					continue
-				}
-				attributes = append(attributes, slog.Group("response", slog.Group("header", slog.Any(k, v))))
-			}
-		}
-
-		// custom context values
-		if v := c.Context().UserValue(customAttributesCtxKey); v != nil {
-			switch attrs := v.(type) {
-			case []slog.Attr:
-				attributes = append(attributes, attrs...)
-			}
-		}
-
-		logErr := err
-		if logErr == nil {
-			logErr = fiber.NewError(status)
-		}
-
-		for _, filter := range config.Filters {
-			if !filter(c) {
-				return logErr
-			}
-		}
-
-		level := config.DefaultLevel
-		msg := "Incoming request"
-		if status >= http.StatusInternalServerError {
-			level = config.ServerErrorLevel
-			msg = logErr.Error()
-		} else if status >= http.StatusBadRequest && status < http.StatusInternalServerError {
-			level = config.ClientErrorLevel
-			msg = logErr.Error()
-		}
-
-		logger.LogAttrs(c.UserContext(), level, msg, attributes...)
-
-		return err
+		return handle(config, logger, c, err, requestID, &start)
 	}
 }
 
-// GetRequestID returns the request identifier
-func GetRequestID(c *fiber.Ctx) string {
-	requestID, ok := c.Context().UserValue("request-id").(string)
-	if !ok {
-		return ""
+func handle(config Config, logger *slog.Logger, c *fiber.Ctx, err error, requestID string, start *time.Time) error {
+	status := c.Response().StatusCode()
+	path := string(c.Context().URI().PathOriginal())
+	end := time.Now()
+
+	ip := c.Context().RemoteIP().String()
+	if len(c.IPs()) > 0 {
+		ip = c.IPs()[0]
 	}
 
-	return requestID
-}
-
-func AddCustomAttributes(c *fiber.Ctx, attr slog.Attr) {
-	v := c.Context().UserValue(customAttributesCtxKey)
-	if v == nil {
-		c.Context().SetUserValue(customAttributesCtxKey, []slog.Attr{attr})
-		return
+	attributes := []slog.Attr{
+		slog.Time("time", end),
+		// slog.Duration("latency", latency),
+		slog.String("method", string(c.Context().Method())),
+		slog.String("host", c.Hostname()),
+		slog.String("path", path),
+		slog.String("route", c.Route().Path),
+		slog.Int("status", status),
+		slog.String("ip", ip),
+		slog.String("user-agent", string(c.Context().UserAgent())),
+		slog.String("referer", c.Get(fiber.HeaderReferer)),
 	}
 
-	switch attrs := v.(type) {
-	case []slog.Attr:
-		c.Context().SetUserValue(customAttributesCtxKey, append(attrs, attr))
+	if start != nil {
+		latency := end.Sub(*start)
+		attributes = append(attributes, slog.Duration("latency", latency))
 	}
+
+	if len(c.IPs()) > 0 {
+		attributes = append(attributes, slog.Any("x-forwarded-for", c.IPs()))
+	}
+
+	if config.WithRequestID {
+		attributes = append(attributes, slog.String("request-id", requestID))
+	}
+
+	// otel
+	if config.WithTraceID {
+		traceID := trace.SpanFromContext(c.Context()).SpanContext().TraceID().String()
+		attributes = append(attributes, slog.String("trace-id", traceID))
+	}
+	if config.WithSpanID {
+		spanID := trace.SpanFromContext(c.Context()).SpanContext().SpanID().String()
+		attributes = append(attributes, slog.String("span-id", spanID))
+	}
+
+	// request
+	if config.WithRequestBody {
+		body := c.Body()
+		if len(body) > RequestBodyMaxSize {
+			body = body[:RequestBodyMaxSize]
+		}
+		attributes = append(attributes, slog.Group("request", slog.String("body", string(body))))
+	}
+	if config.WithRequestHeader {
+		for k, v := range c.GetReqHeaders() {
+			if _, found := HiddenRequestHeaders[strings.ToLower(k)]; found {
+				continue
+			}
+			attributes = append(attributes, slog.Group("request", slog.Group("header", slog.Any(k, v))))
+		}
+	}
+
+	// response
+	if config.WithResponseBody {
+		body := c.Response().Body()
+		if len(body) > ResponseBodyMaxSize {
+			body = body[:ResponseBodyMaxSize]
+		}
+		attributes = append(attributes, slog.Group("response", slog.String("body", string(body))))
+	}
+	if config.WithResponseHeader {
+		for k, v := range c.GetRespHeaders() {
+			if _, found := HiddenResponseHeaders[strings.ToLower(k)]; found {
+				continue
+			}
+			attributes = append(attributes, slog.Group("response", slog.Group("header", slog.Any(k, v))))
+		}
+	}
+
+	// custom context values
+	if v := c.Context().UserValue(customAttributesCtxKey); v != nil {
+		switch attrs := v.(type) {
+		case []slog.Attr:
+			attributes = append(attributes, attrs...)
+		}
+	}
+
+	logErr := err
+	if logErr == nil {
+		logErr = fiber.NewError(status)
+	}
+
+	for _, filter := range config.Filters {
+		if !filter(c) {
+			return logErr
+		}
+	}
+
+	level := config.DefaultLevel
+	msg := "Incoming request"
+	if status >= http.StatusInternalServerError {
+		level = config.ServerErrorLevel
+		msg = logErr.Error()
+	} else if status >= http.StatusBadRequest && status < http.StatusInternalServerError {
+		level = config.ClientErrorLevel
+		msg = logErr.Error()
+	}
+
+	logger.LogAttrs(c.UserContext(), level, msg, attributes...)
+
+	return err
 }

@@ -52,7 +52,11 @@ No breaking changes will be made to exported APIs before v2.0.0.
 
 ## 💡 Usage
 
-### Minimal
+You can use either:
+- the middleware
+- the error handler (prefered)
+
+### Minimal (via middleware)
 
 ```go
 import (
@@ -68,11 +72,56 @@ logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 app := fiber.New()
 
-app.Use(slogfiber.New(logger))
+app.Use(slogfiber.NewMiddleware(logger))
 app.Use(recover.New())
 
 app.Get("/", func(c *fiber.Ctx) error {
 	return c.SendString("Hello, World 👋!")
+})
+
+// 404 Handler
+app.Use(func(c *fiber.Ctx) error {
+	return c.SendStatus(fiber.StatusNotFound)
+})
+
+app.Listen(":4242")
+
+// output:
+// time=2023-04-10T14:00:00.000+00:00 level=INFO msg="Incoming request" status=200 method=GET path=/ route=/ ip=::1 latency=25.958µs user-agent=curl/7.77.0 time=2023-04-10T14:00:00.000+00:00 request-id=229c7fc8-64f5-4467-bc4a-940700503b0d
+```
+
+### Minimal (via error handler)
+
+```go
+import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/recover"
+	slogfiber "github.com/samber/slog-fiber"
+	"log/slog"
+)
+
+// Create a slog logger, which:
+//   - Logs to stdout.
+logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+errorHandlerLogger := slogfiber.NewErrorHandler(logger.WithGroup("http"))
+
+app := fiber.NewMiddleware(fiber.Config{
+	// ...
+	ErrorHandler: func(ctx *fiber.Ctx, err error) error {
+		// ...
+		return errorHandlerLogger(ctx, err)
+	},
+})
+
+app.Use(recover.New())
+
+app.Get("/", func(c *fiber.Ctx) error {
+	return c.SendString("Hello, World 👋!")
+})
+
+// 404 Handler
+app.Use(func(c *fiber.Ctx) error {
+	return c.SendStatus(fiber.StatusNotFound)
 })
 
 app.Listen(":4242")
@@ -92,7 +141,7 @@ config := sloggin.Config{
 }
 
 app := fiber.New()
-app.Use(slogfiber.NewWithConfig(logger, config))
+app.Use(slogfiber.NewMiddlewareWithConfig(logger, config))
 ```
 
 ### Verbose
@@ -107,7 +156,7 @@ config := sloggin.Config{
 	WithResponseHeader: true,
 }
 
-app := fiber.New()
+app := fiber.NewMiddleware()
 app.Use(slogfiber.NewWithConfig(logger, config))
 ```
 
@@ -118,7 +167,7 @@ logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 app := fiber.New()
 app.Use(
-	slogfiber.NewWithFilters(
+	slogfiber.NewMiddlewareWithFilters(
 		logger,
 		slogfiber.Accept(func (c *fiber.Ctx) bool {
 			return xxx
@@ -163,7 +212,7 @@ logger := slog.New(
 
 app := fiber.New()
 
-app.Use(slogfiber.New(logger))
+app.Use(slogfiber.NewMiddleware(logger))
 app.Use(recover.New())
 
 app.Get("/", func(c *fiber.Ctx) error {
@@ -183,7 +232,7 @@ logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 app := fiber.New()
 
-app.Use(slogfiber.New(logger.WithGroup("http")))
+app.Use(slogfiber.NewMiddleware(logger.WithGroup("http")))
 app.Use(recover.New())
 
 app.Get("/", func(c *fiber.Ctx) error {
@@ -203,7 +252,7 @@ logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 app := fiber.New()
 
-app.Use(slogfiber.New(logger))
+app.Use(slogfiber.NewMiddleware(logger))
 app.Use(recover.New())
 
 app.Get("/", func(c *fiber.Ctx) error {
@@ -226,7 +275,7 @@ logger = logger.With("env", "production")
 
 app := fiber.New()
 
-app.Use(slogfiber.New(logger))
+app.Use(slogfiber.NewMiddleware(logger))
 app.Use(recover.New())
 
 app.Get("/", func(c *fiber.Ctx) error {
@@ -248,7 +297,7 @@ logger := slog.New(slog.NewJSONHandler(os.Stdout, nil)),
 
 app := fiber.New()
 
-app.Use(slogfiber.New(logger))
+app.Use(slogfiber.NewMiddleware(logger))
 app.Use(recover.New())
 
 app.Get("/", func(c *fiber.Ctx) error {
