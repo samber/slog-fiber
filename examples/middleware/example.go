@@ -31,7 +31,7 @@ func main() {
 
 	app := fiber.New()
 
-	app.Use(slogfiber.New(logger.WithGroup("http")))
+	app.Use(slogfiber.NewMiddleware(logger.WithGroup("http")))
 	// config := slogfiber.Config{WithRequestBody: true, WithResponseBody: true, WithRequestHeader: true, WithResponseHeader: true}
 	// app.Use(slogfiber.NewWithConfig(logger, config))
 	app.Use(recover.New())
@@ -51,7 +51,7 @@ func main() {
 
 	// 404 Handler
 	app.Use(func(c *fiber.Ctx) error {
-		return c.SendStatus(fiber.StatusNotFound)
+		return fiber.NewError(fiber.StatusNotFound)
 	})
 
 	err := app.Listen(":4242")
