@@ -38,6 +38,7 @@ type Config struct {
 	ClientErrorLevel slog.Level
 	ServerErrorLevel slog.Level
 
+	WithUserAgent      bool
 	WithRequestID      bool
 	WithRequestBody    bool
 	WithRequestHeader  bool
@@ -59,6 +60,7 @@ func New(logger *slog.Logger) fiber.Handler {
 		ClientErrorLevel: slog.LevelWarn,
 		ServerErrorLevel: slog.LevelError,
 
+		WithUserAgent:      false,
 		WithRequestID:      true,
 		WithRequestBody:    false,
 		WithRequestHeader:  false,
@@ -81,6 +83,7 @@ func NewWithFilters(logger *slog.Logger, filters ...Filter) fiber.Handler {
 		ClientErrorLevel: slog.LevelWarn,
 		ServerErrorLevel: slog.LevelError,
 
+		WithUserAgent:      false,
 		WithRequestID:      true,
 		WithRequestBody:    false,
 		WithRequestHeader:  false,
@@ -111,6 +114,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		end := time.Now()
 		latency := end.Sub(start)
 		status := c.Response().StatusCode()
+		userAgent := c.Context().UserAgent()
 
 		ip := c.Context().RemoteIP().String()
 		if len(c.IPs()) > 0 {
@@ -126,12 +130,15 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 			slog.String("route", c.Route().Path),
 			slog.Int("status", status),
 			slog.String("ip", ip),
-			slog.String("user-agent", string(c.Context().UserAgent())),
 			slog.String("referer", c.Get(fiber.HeaderReferer)),
 		}
 
 		if len(c.IPs()) > 0 {
 			attributes = append(attributes, slog.Any("x-forwarded-for", c.IPs()))
+		}
+
+		if config.WithUserAgent {
+			attributes = append(attributes, slog.String("user-agent", string(userAgent)))
 		}
 
 		if config.WithRequestID {
