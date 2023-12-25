@@ -87,9 +87,24 @@ app.Listen(":4242")
 ```go
 logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
-config := sloggin.Config{
+config := slogfiber.Config{
 	WithSpanID:  true,
 	WithTraceID: true,
+}
+
+app := fiber.New()
+app.Use(slogfiber.NewWithConfig(logger, config))
+```
+
+### Custom log levels
+
+```go
+logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+
+config := slogfiber.Config{
+	DefaultLevel:     slog.LevelInfo,
+	ClientErrorLevel: slog.LevelWarn,
+	ServerErrorLevel: slog.LevelError,
 }
 
 app := fiber.New()
@@ -101,7 +116,7 @@ app.Use(slogfiber.NewWithConfig(logger, config))
 ```go
 logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
-config := sloggin.Config{
+config := slogfiber.Config{
 	WithRequestBody: true,
 	WithResponseBody: true,
 	WithRequestHeader: true,
