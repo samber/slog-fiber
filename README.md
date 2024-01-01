@@ -79,7 +79,7 @@ app.Get("/", func(c *fiber.Ctx) error {
 app.Listen(":4242")
 
 // output:
-// time=2023-04-10T14:00:00.000+00:00 level=INFO msg="Incoming request" status=200 method=GET path=/ route=/ ip=::1 latency=25.958µs user-agent=curl/7.77.0 time=2023-04-10T14:00:00.000+00:00 request-id=229c7fc8-64f5-4467-bc4a-940700503b0d
+// time=2023-10-15T20:32:58.926+02:00 level=INFO msg="Incoming request" env=production request.time=2023-10-15T20:32:58.626+02:00 request.method=GET request.path=/ request.route="" request.ip=127.0.0.1:63932 request.length=0 response.time=2023-10-15T20:32:58.926+02:00 response.latency=100ms response.status=200 response.length=7 id=229c7fc8-64f5-4467-bc4a-940700503b0d
 ```
 
 ### OTEL
@@ -189,7 +189,7 @@ app.Get("/", func(c *fiber.Ctx) error {
 app.Listen(":4242")
 
 // output:
-// time=2023-04-10T14:00:00.000+00:00 level=INFO msg="Incoming request" status=200 method=GET path=/ route=/ ip=::1 latency=25.958µs user-agent=curl/7.77.0 time=2023-04-10T14:00:00Z request-id=229c7fc8-64f5-4467-bc4a-940700503b0d
+// time=2023-10-15T20:32:58.926+02:00 level=INFO msg="Incoming request" env=production request.time=2023-10-15T20:32:58Z request.method=GET request.path=/ request.route="" request.ip=127.0.0.1:63932 request.length=0 response.time=2023-10-15T20:32:58Z response.latency=100ms response.status=200 response.length=7 id=229c7fc8-64f5-4467-bc4a-940700503b0d
 ```
 
 ### Using custom logger sub-group
@@ -209,7 +209,7 @@ app.Get("/", func(c *fiber.Ctx) error {
 app.Listen(":4242")
 
 // output:
-// time=2023-04-10T14:00:00.000+00:00 level=INFO msg="Incoming request" http.status=200 http.method=GET http.path=/ http.route=/ http.ip=::1 http.latency=25.958µs http.user-agent=curl/7.77.0 http.time=2023-04-10T14:00:00Z http.request-id=229c7fc8-64f5-4467-bc4a-940700503b0d
+// time=2023-10-15T20:32:58.926+02:00 level=INFO msg="Incoming request" env=production http.request.time=2023-10-15T20:32:58.626+02:00 http.request.method=GET http.request.path=/ http.request.route="" http.request.ip=127.0.0.1:63932 http.request.length=0 http.response.time=2023-10-15T20:32:58.926+02:00 http.response.latency=100ms http.response.status=200 http.response.length=7 http.id=229c7fc8-64f5-4467-bc4a-940700503b0d
 ```
 
 ### Add logger to a single route
@@ -219,17 +219,13 @@ logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 app := fiber.New()
 
-app.Use(slogfiber.New(logger))
 app.Use(recover.New())
 
-app.Get("/", func(c *fiber.Ctx) error {
+app.Get("/", slogfiber.New(logger), func(c *fiber.Ctx) error {
 	return c.SendString("Hello, World 👋!")
 })
 
 app.Listen(":4242")
-
-// output:
-// time=2023-04-10T14:00:00.000+00:00 level=INFO msg="Incoming request" status=200 method=GET path=/ route=/ ip=::1 latency=25.958µs user-agent=curl/7.77.0 time=2023-04-10T14:00:00Z request-id=229c7fc8-64f5-4467-bc4a-940700503b0d
 ```
 
 ### Adding custom attributes
@@ -254,7 +250,7 @@ app.Get("/", func(c *fiber.Ctx) error {
 app.Listen(":4242")
 
 // output:
-// time=2023-04-10T14:00:00.000+00:00 level=INFO msg="Incoming request" env=production status=200 method=GET path=/ route=/ ip=::1 latency=25.958µs user-agent=curl/7.77.0 time=2023-04-10T14:00:00Z request-id=229c7fc8-64f5-4467-bc4a-940700503b0d foo=bar
+// time=2023-10-15T20:32:58.926+02:00 level=INFO msg="Incoming request" env=production request.time=2023-10-15T20:32:58.626+02:00 request.method=GET request.path=/ request.route="" request.ip=127.0.0.1:63932 request.length=0 response.time=2023-10-15T20:32:58.926+02:00 response.latency=100ms response.status=200 response.length=7 id=229c7fc8-64f5-4467-bc4a-940700503b0d foo=bar
 ```
 
 ### JSON output
@@ -274,7 +270,7 @@ app.Get("/", func(c *fiber.Ctx) error {
 app.Listen(":4242")
 
 // output:
-// {"time":"2023-04-10T14:00:00Z","level":"INFO","msg":"Incoming request","status":200,"method":"GET","path":"/","ip":"::1","latency":26750,"user-agent":"curl/7.77.0","time":"2023-04-10T14:00:00Z","request-id":"04201917-d7ba-4b20-a3bb-2fffba5f2bd9"}
+// {"time":"2023-10-15T20:32:58.926+02:00","level":"INFO","msg":"Incoming request","env":"production","http":{"request":{"time":"2023-10-15T20:32:58.626+02:00","method":"GET","path":"/","route":"","ip":"127.0.0.1:55296","length":0},"response":{"time":"2023-10-15T20:32:58.926+02:00","latency":100000,"status":200,"length":7},"id":"04201917-d7ba-4b20-a3bb-2fffba5f2bd9"}}
 ```
 
 ## 🤝 Contributing
