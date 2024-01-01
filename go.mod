@@ -17,7 +17,6 @@ require (
 	github.com/valyala/fasthttp v1.50.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	go.opentelemetry.io/otel v1.19.0 // indirect
-	go.opentelemetry.io/otel/trace v1.19.0 // indirect
 	golang.org/x/sys v0.13.0 // indirect
 )
 
@@ -25,5 +24,5 @@ require (
 	github.com/gofiber/fiber/v2 v2.50.0
 	github.com/google/uuid v1.3.1
 	github.com/samber/slog-formatter v1.0.0
-	go.uber.org/goleak v1.2.1
+	go.opentelemetry.io/otel/trace v1.19.0
 )
