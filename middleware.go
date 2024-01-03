@@ -101,6 +101,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		start := time.Now()
 		path := c.Path()
+		query := string(c.Request().URI().QueryString())
 
 		requestID := uuid.New().String()
 		if config.WithRequestID {
@@ -113,6 +114,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		status := c.Response().StatusCode()
 		method := c.Context().Method()
 		host := c.Hostname()
+		params := c.AllParams()
 		route := c.Route().Path
 		end := time.Now()
 		latency := end.Sub(start)
@@ -131,6 +133,8 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 			slog.String("method", string(method)),
 			slog.String("host", host),
 			slog.String("path", path),
+			slog.String("query", query),
+			slog.Any("params", params),
 			slog.String("route", route),
 			slog.String("ip", ip),
 			slog.Any("x-forwarded-for", c.IPs()),
