@@ -235,15 +235,15 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 			}
 		}
 
+		for _, filter := range config.Filters {
+			if !filter(c) {
+				return err
+			}
+		}
+
 		logErr := err
 		if logErr == nil {
 			logErr = fiber.NewError(status)
-		}
-
-		for _, filter := range config.Filters {
-			if !filter(c) {
-				return logErr
-			}
 		}
 
 		level := config.DefaultLevel
