@@ -31,6 +31,9 @@ var (
 	HiddenResponseHeaders = map[string]struct{}{
 		"set-cookie": {},
 	}
+
+	// Formatted with http.CanonicalHeaderKey
+	RequestIDHeaderKey = "X-Request-Id"
 )
 
 type Config struct {
@@ -103,8 +106,11 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		path := c.Path()
 		query := string(c.Request().URI().QueryString())
 
-		requestID := uuid.New().String()
+		requestID := c.Get(RequestIDHeaderKey)
 		if config.WithRequestID {
+			if requestID == "" {
+				requestID = uuid.New().String()
+			}
 			c.Context().SetUserValue("request-id", requestID)
 			c.Set("X-Request-ID", requestID)
 		}
