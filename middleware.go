@@ -3,6 +3,7 @@ package slogfiber
 import (
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	"log/slog"
@@ -101,7 +102,16 @@ func NewWithFilters(logger *slog.Logger, filters ...Filter) fiber.Handler {
 
 // NewWithConfig returns a fiber.Handler (middleware) that logs requests using slog.
 func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
+	var (
+		once       sync.Once
+		errHandler fiber.ErrorHandler
+	)
+
 	return func(c *fiber.Ctx) error {
+		once.Do(func() {
+			errHandler = c.App().ErrorHandler
+		})
+
 		start := time.Now()
 		path := c.Path()
 		query := string(c.Request().URI().QueryString())
@@ -116,6 +126,11 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		}
 
 		err := c.Next()
+		if err != nil {
+			if err := errHandler(c, err); err != nil {
+				_ = c.SendStatus(fiber.StatusInternalServerError) //nolint:errcheck
+			}
+		}
 
 		status := c.Response().StatusCode()
 		method := c.Context().Method()
