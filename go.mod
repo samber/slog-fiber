@@ -25,5 +25,4 @@ require (
 	github.com/google/uuid v1.5.0
 	github.com/samber/slog-formatter v1.0.0
 	go.opentelemetry.io/otel/trace v1.19.0
-	go.uber.org/goleak v1.2.1
 )
