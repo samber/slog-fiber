@@ -49,6 +49,16 @@ func main() {
 		return c.SendString("Hello, World 👋!")
 	})
 
+	app.Post("/bad", func(c *fiber.Ctx) error {
+		return c.SendStatus(fiber.StatusBadRequest)
+	})
+	app.Get("/die", func(c *fiber.Ctx) error {
+		panic("killed")
+	})
+	app.Post("/force", func(c *fiber.Ctx) error {
+		return fiber.NewError(fiber.StatusUnauthorized)
+	})
+
 	// 404 Handler
 	app.Use(func(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusNotFound)
