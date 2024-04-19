@@ -9,7 +9,7 @@ import (
 
 	"log/slog"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"github.com/google/uuid"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -112,7 +112,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		errHandler fiber.ErrorHandler
 	)
 
-	return func(c *fiber.Ctx) error {
+	return func(c fiber.Ctx) error {
 		once.Do(func() {
 			errHandler = c.App().ErrorHandler
 		})
@@ -140,7 +140,12 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		status := c.Response().StatusCode()
 		method := c.Context().Method()
 		host := c.Hostname()
-		params := c.AllParams()
+
+		params := make(map[string]string, len(c.Route().Params))
+		for _, param := range c.Route().Params {
+			params[param] = c.Params(param)
+		}
+
 		route := c.Route().Path
 		end := time.Now()
 		latency := end.Sub(start)
@@ -282,7 +287,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 }
 
 // GetRequestID returns the request identifier
-func GetRequestID(c *fiber.Ctx) string {
+func GetRequestID(c fiber.Ctx) string {
 	requestID, ok := c.Context().UserValue("request-id").(string)
 	if !ok {
 		return ""
@@ -291,7 +296,7 @@ func GetRequestID(c *fiber.Ctx) string {
 	return requestID
 }
 
-func AddCustomAttributes(c *fiber.Ctx, attr slog.Attr) {
+func AddCustomAttributes(c fiber.Ctx, attr slog.Attr) {
 	v := c.Context().UserValue(customAttributesCtxKey)
 	if v == nil {
 		c.Context().SetUserValue(customAttributesCtxKey, []slog.Attr{attr})
