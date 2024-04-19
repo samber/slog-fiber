@@ -69,8 +69,8 @@ No breaking changes will be made to exported APIs before v2.0.0.
 
 ```go
 import (
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/recover"
 	slogfiber "github.com/samber/slog-fiber"
 	"log/slog"
 )
@@ -84,7 +84,7 @@ app := fiber.New()
 app.Use(slogfiber.New(logger))
 app.Use(recover.New())
 
-app.Get("/", func(c *fiber.Ctx) error {
+app.Get("/", func(c fiber.Ctx) error {
 	return c.SendString("Hello, World 👋!")
 })
 
@@ -148,7 +148,7 @@ app := fiber.New()
 app.Use(
 	slogfiber.NewWithFilters(
 		logger,
-		slogfiber.Accept(func (c *fiber.Ctx) bool {
+		slogfiber.Accept(func (c fiber.Ctx) bool {
 			return xxx
 		}),
 		slogfiber.IgnoreStatus(401, 404),
@@ -194,7 +194,7 @@ app := fiber.New()
 app.Use(slogfiber.New(logger))
 app.Use(recover.New())
 
-app.Get("/", func(c *fiber.Ctx) error {
+app.Get("/", func(c fiber.Ctx) error {
 	return c.SendString("Hello, World 👋!")
 })
 
@@ -214,7 +214,7 @@ app := fiber.New()
 app.Use(slogfiber.New(logger.WithGroup("http")))
 app.Use(recover.New())
 
-app.Get("/", func(c *fiber.Ctx) error {
+app.Get("/", func(c fiber.Ctx) error {
 	return c.SendString("Hello, World 👋!")
 })
 
@@ -233,7 +233,7 @@ app := fiber.New()
 
 app.Use(recover.New())
 
-app.Get("/", slogfiber.New(logger), func(c *fiber.Ctx) error {
+app.Get("/", slogfiber.New(logger), func(c fiber.Ctx) error {
 	return c.SendString("Hello, World 👋!")
 })
 
@@ -253,7 +253,7 @@ app := fiber.New()
 app.Use(slogfiber.New(logger))
 app.Use(recover.New())
 
-app.Get("/", func(c *fiber.Ctx) error {
+app.Get("/", func(c fiber.Ctx) error {
 	// Add an attribute to a single log entry.
 	slogfiber.AddCustomAttributes(c, slog.String("foo", "bar"))
 	return c.SendString("Hello, World 👋!")
@@ -275,7 +275,7 @@ app := fiber.New()
 app.Use(slogfiber.New(logger))
 app.Use(recover.New())
 
-app.Get("/", func(c *fiber.Ctx) error {
+app.Get("/", func(c fiber.Ctx) error {
 	return c.SendString("Hello, World 👋!")
 })
 
