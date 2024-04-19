@@ -7,8 +7,8 @@ import (
 
 	"log/slog"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/recover"
 	slogfiber "github.com/samber/slog-fiber"
 	slogformatter "github.com/samber/slog-formatter"
 )
@@ -36,31 +36,31 @@ func main() {
 	// app.Use(slogfiber.NewWithConfig(logger, config))
 	app.Use(recover.New())
 
-	app.Get("/", func(c *fiber.Ctx) error {
+	app.Get("/", func(c fiber.Ctx) error {
 		slogfiber.AddCustomAttributes(c, slog.String("foo", "bar"))
 		return c.SendString("Hello, World 👋!")
 	})
 
-	app.Get("/crashme", func(c *fiber.Ctx) error {
+	app.Get("/crashme", func(c fiber.Ctx) error {
 		return c.Status(400).SendString("Oops i crashed :(")
 	})
 
-	app.Get("/foobar/:id", func(c *fiber.Ctx) error {
+	app.Get("/foobar/:id", func(c fiber.Ctx) error {
 		return c.SendString("Hello, World 👋!")
 	})
 
-	app.Post("/bad", func(c *fiber.Ctx) error {
+	app.Post("/bad", func(c fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusBadRequest)
 	})
-	app.Get("/die", func(c *fiber.Ctx) error {
+	app.Get("/die", func(c fiber.Ctx) error {
 		panic("killed")
 	})
-	app.Post("/force", func(c *fiber.Ctx) error {
+	app.Post("/force", func(c fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusUnauthorized)
 	})
 
 	// 404 Handler
-	app.Use(func(c *fiber.Ctx) error {
+	app.Use(func(c fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusNotFound)
 	})
 
