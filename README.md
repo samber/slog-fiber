@@ -69,6 +69,41 @@ No breaking changes will be made to exported APIs before v2.0.0.
 
 ## 💡 Usage
 
+### Handler options
+
+```go
+type Config struct {
+	DefaultLevel     slog.Level
+	ClientErrorLevel slog.Level
+	ServerErrorLevel slog.Level
+
+	WithUserAgent      bool
+	WithRequestID      bool
+	WithRequestBody    bool
+	WithRequestHeader  bool
+	WithResponseBody   bool
+	WithResponseHeader bool
+	WithSpanID         bool
+	WithTraceID        bool
+
+	Filters []Filter
+}
+```
+
+Attributes will be injected in log payload.
+
+Other global parameters:
+
+```go
+slogfiber.TraceIDKey = "trace-id"
+slogfiber.SpanIDKey = "span-id"
+slogfiber.RequestBodyMaxSize  = 64 * 1024 // 64KB
+slogfiber.ResponseBodyMaxSize = 64 * 1024 // 64KB
+slogfiber.HiddenRequestHeaders = map[string]struct{}{ ... }
+slogfiber.HiddenResponseHeaders = map[string]struct{}{ ... }
+slogfiber.RequestIDHeaderKey = "X-Request-Id"
+```
+
 ### Minimal
 
 ```go

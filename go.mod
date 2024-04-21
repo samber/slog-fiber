@@ -12,6 +12,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/samber/lo v1.38.1 // indirect
+	github.com/samber/slog-formatter v1.0.0
 	github.com/samber/slog-multi v1.0.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.51.0 // indirect
@@ -23,7 +24,6 @@ require (
 require (
 	github.com/gofiber/fiber/v2 v2.52.1
 	github.com/google/uuid v1.5.0
-	github.com/samber/slog-formatter v1.0.0
 	go.opentelemetry.io/otel/trace v1.19.0
 	go.uber.org/goleak v1.2.1
 )
