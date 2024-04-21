@@ -1,6 +1,7 @@
 package slogfiber
 
 import (
+	"context"
 	"net/http"
 	"strings"
 	"sync"
@@ -176,14 +177,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		}
 
 		// otel
-		if config.WithTraceID {
-			traceID := trace.SpanFromContext(c.Context()).SpanContext().TraceID().String()
-			baseAttributes = append(baseAttributes, slog.String(TraceIDKey, traceID))
-		}
-		if config.WithSpanID {
-			spanID := trace.SpanFromContext(c.Context()).SpanContext().SpanID().String()
-			baseAttributes = append(baseAttributes, slog.String(SpanIDKey, spanID))
-		}
+		baseAttributes = append(baseAttributes, extractTraceSpanID(c.Context(), config.WithTraceID, config.WithSpanID)...)
 
 		// request body
 		requestAttributes = append(requestAttributes, slog.Int("length", len((c.Body()))))
@@ -307,4 +301,30 @@ func AddCustomAttributes(c *fiber.Ctx, attr slog.Attr) {
 	case []slog.Attr:
 		c.Context().SetUserValue(customAttributesCtxKey, append(attrs, attr))
 	}
+}
+
+func extractTraceSpanID(ctx context.Context, withTraceID bool, withSpanID bool) []slog.Attr {
+	if !(withTraceID || withSpanID) {
+		return []slog.Attr{}
+	}
+
+	span := trace.SpanFromContext(ctx)
+	if !span.IsRecording() {
+		return []slog.Attr{}
+	}
+
+	attrs := []slog.Attr{}
+	spanCtx := span.SpanContext()
+
+	if withTraceID && spanCtx.HasTraceID() {
+		traceID := trace.SpanFromContext(ctx).SpanContext().TraceID().String()
+		attrs = append(attrs, slog.String(TraceIDKey, traceID))
+	}
+
+	if withSpanID && spanCtx.HasSpanID() {
+		spanID := spanCtx.SpanID().String()
+		attrs = append(attrs, slog.String(SpanIDKey, spanID))
+	}
+
+	return attrs
 }
