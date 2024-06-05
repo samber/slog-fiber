@@ -2,12 +2,11 @@ package slogfiber
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
-
-	"log/slog"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/google/uuid"
@@ -38,7 +37,7 @@ var (
 	}
 
 	// Formatted with http.CanonicalHeaderKey
-	RequestIDHeaderKey = "X-Request-Id"
+	RequestIDHeaderKey = fiber.HeaderXRequestID
 )
 
 type Config struct {
@@ -126,7 +125,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 				requestID = uuid.New().String()
 			}
 			c.Context().SetUserValue("request-id", requestID)
-			c.Set("X-Request-ID", requestID)
+			c.Set(RequestIDHeaderKey, requestID)
 		}
 
 		err := c.Next()
@@ -309,7 +308,7 @@ func AddCustomAttributes(c fiber.Ctx, attr slog.Attr) {
 }
 
 func extractTraceSpanID(ctx context.Context, withTraceID bool, withSpanID bool) []slog.Attr {
-	if !(withTraceID || withSpanID) {
+	if !withTraceID && !withSpanID {
 		return []slog.Attr{}
 	}
 
