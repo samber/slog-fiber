@@ -60,7 +60,7 @@
 go get github.com/samber/slog-fiber
 
 # Fiber v3 (beta)
-go get github.com/samber/slog-echo@fiber-v3
+go get github.com/samber/slog-fiber@fiber-v3
 ```
 
 **Compatibility**: go >= 1.21
