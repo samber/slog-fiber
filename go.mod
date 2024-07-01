@@ -22,7 +22,7 @@ require (
 )
 
 require (
-	github.com/gofiber/fiber/v2 v2.52.1
+	github.com/gofiber/fiber/v2 v2.52.5
 	github.com/google/uuid v1.5.0
 	go.opentelemetry.io/otel/trace v1.19.0
 	go.uber.org/goleak v1.2.1
