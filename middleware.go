@@ -11,6 +11,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"github.com/valyala/fasthttp"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -281,9 +282,14 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 	}
 }
 
-// GetRequestID returns the request identifier
+// GetRequestID returns the request identifier.
 func GetRequestID(c *fiber.Ctx) string {
-	requestID, ok := c.Context().UserValue("request-id").(string)
+	return GetRequestIDFromContext(c.Context())
+}
+
+// GetRequestIDFromContext returns the request identifier from the context.
+func GetRequestIDFromContext(ctx *fasthttp.RequestCtx) string {
+	requestID, ok := ctx.UserValue("request-id").(string)
 	if !ok {
 		return ""
 	}
@@ -291,6 +297,7 @@ func GetRequestID(c *fiber.Ctx) string {
 	return requestID
 }
 
+// AddCustomAttributes adds custom attributes to the request context.
 func AddCustomAttributes(c *fiber.Ctx, attr slog.Attr) {
 	v := c.Context().UserValue(customAttributesCtxKey)
 	if v == nil {
