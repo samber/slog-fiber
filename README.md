@@ -111,8 +111,8 @@ Attributes will be injected in log payload.
 Other global parameters:
 
 ```go
-slogfiber.TraceIDKey = "trace-id"
-slogfiber.SpanIDKey = "span-id"
+slogfiber.TraceIDKey = "trace_id"
+slogfiber.SpanIDKey = "span_id"
 slogfiber.RequestBodyMaxSize  = 64 * 1024 // 64KB
 slogfiber.ResponseBodyMaxSize = 64 * 1024 // 64KB
 slogfiber.HiddenRequestHeaders = map[string]struct{}{ ... }

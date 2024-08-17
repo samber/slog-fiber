@@ -20,8 +20,8 @@ type customAttributesCtxKeyType struct{}
 var customAttributesCtxKey = customAttributesCtxKeyType{}
 
 var (
-	TraceIDKey   = "trace-id"
-	SpanIDKey    = "span-id"
+	TraceIDKey   = "trace_id"
+	SpanIDKey    = "span_id"
 	RequestIDKey = "id"
 
 	RequestBodyMaxSize  = 64 * 1024 // 64KB
