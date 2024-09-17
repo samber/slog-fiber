@@ -133,7 +133,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 
 		err := c.Next()
 		if err != nil {
-			if err := errHandler(c, err); err != nil {
+			if err = errHandler(c, err); err != nil {
 				_ = c.SendStatus(fiber.StatusInternalServerError) //nolint:errcheck
 			}
 		}
