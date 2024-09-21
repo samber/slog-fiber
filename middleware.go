@@ -156,7 +156,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		baseAttributes := []slog.Attr{}
 
 		requestAttributes := []slog.Attr{
-			slog.Time("time", start),
+			slog.Time("time", start.UTC()),
 			slog.String("method", string(method)),
 			slog.String("host", host),
 			slog.String("path", path),
@@ -169,7 +169,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		}
 
 		responseAttributes := []slog.Attr{
-			slog.Time("time", end),
+			slog.Time("time", end.UTC()),
 			slog.Duration("latency", latency),
 			slog.Int("status", status),
 		}
