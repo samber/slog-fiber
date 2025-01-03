@@ -138,6 +138,13 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 			}
 		}
 
+		// Pass thru filters and skip early the code below, to prevent unnecessary processing.
+		for _, filter := range config.Filters {
+			if !filter(c) {
+				return err
+			}
+		}
+
 		status := c.Response().StatusCode()
 		method := c.Context().Method()
 		host := c.Hostname()
@@ -252,12 +259,6 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 			switch attrs := v.(type) {
 			case []slog.Attr:
 				attributes = append(attributes, attrs...)
-			}
-		}
-
-		for _, filter := range config.Filters {
-			if !filter(c) {
-				return err
 			}
 		}
 
