@@ -73,22 +73,38 @@ func AcceptStatusGreaterThan(status int) Filter {
 	}
 }
 
-func IgnoreStatusLessThan(status int) Filter {
-	return func(c *fiber.Ctx) bool {
-		return c.Response().StatusCode() < status
-	}
-}
-
 func AcceptStatusGreaterThanOrEqual(status int) Filter {
 	return func(c *fiber.Ctx) bool {
 		return c.Response().StatusCode() >= status
 	}
 }
 
-func IgnoreStatusLessThanOrEqual(status int) Filter {
+func AcceptStatusLessThan(status int) Filter {
+	return func(c *fiber.Ctx) bool {
+		return c.Response().StatusCode() < status
+	}
+}
+
+func AcceptStatusLessThanOrEqual(status int) Filter {
 	return func(c *fiber.Ctx) bool {
 		return c.Response().StatusCode() <= status
 	}
+}
+
+func IgnoreStatusGreaterThan(status int) Filter {
+	return AcceptStatusLessThanOrEqual(status)
+}
+
+func IgnoreStatusGreaterThanOrEqual(status int) Filter {
+	return AcceptStatusLessThan(status)
+}
+
+func IgnoreStatusLessThan(status int) Filter {
+	return AcceptStatusGreaterThanOrEqual(status)
+}
+
+func IgnoreStatusLessThanOrEqual(status int) Filter {
+	return AcceptStatusGreaterThan(status)
 }
 
 // Path
