@@ -2,7 +2,7 @@ module github.com/samber/slog-fiber
 
 go 1.21
 
-require golang.org/x/text v0.20.0 // indirect
+require golang.org/x/text v0.21.0 // indirect
 
 require (
 	github.com/andybalholm/brotli v1.1.1 // indirect
@@ -11,8 +11,8 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	github.com/samber/lo v1.47.0 // indirect
-	github.com/samber/slog-formatter v1.1.2
+	github.com/samber/lo v1.49.1 // indirect
+	github.com/samber/slog-formatter v1.2.0
 	github.com/samber/slog-multi v1.3.3 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.58.0
