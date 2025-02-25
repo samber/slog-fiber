@@ -2,7 +2,7 @@ module github.com/samber/slog-fiber
 
 go 1.21
 
-require golang.org/x/text v0.21.0 // indirect
+require golang.org/x/text v0.22.0 // indirect
 
 require (
 	github.com/andybalholm/brotli v1.1.1 // indirect
@@ -15,10 +15,9 @@ require (
 	github.com/samber/slog-formatter v1.2.0
 	github.com/samber/slog-multi v1.3.3 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.58.0
-	github.com/valyala/tcplisten v1.0.0 // indirect
+	github.com/valyala/fasthttp v1.59.0
 	go.opentelemetry.io/otel v1.29.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
 )
 
 require (
