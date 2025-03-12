@@ -2,6 +2,7 @@ package slogfiber
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 	"sync"
@@ -272,9 +273,15 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		if status >= http.StatusInternalServerError {
 			level = config.ServerErrorLevel
 			msg = logErr.Error()
+			if msg == "" {
+				msg = fmt.Sprintf("HTTP error: %d %s", status, strings.ToLower(http.StatusText(status)))
+			}
 		} else if status >= http.StatusBadRequest && status < http.StatusInternalServerError {
 			level = config.ClientErrorLevel
 			msg = logErr.Error()
+			if msg == "" {
+				msg = fmt.Sprintf("HTTP error: %d %s", status, strings.ToLower(http.StatusText(status)))
+			}
 		}
 
 		logger.LogAttrs(c.UserContext(), level, msg, attributes...)
