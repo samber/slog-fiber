@@ -126,7 +126,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 			if requestID == "" {
 				requestID = uuid.New().String()
 			}
-			c.Context().SetUserValue("request-id", requestID)
+			c.Set("request-id", requestID)
 			c.Set("X-Request-ID", requestID)
 		}
 
@@ -138,7 +138,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		}
 
 		status := c.Response().StatusCode()
-		method := c.Context().Method()
+		method := c.Method()
 		host := c.Hostname()
 
 		params := make(map[string]string, len(c.Route().Params))
@@ -149,10 +149,10 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		route := c.Route().Path
 		end := time.Now()
 		latency := end.Sub(start)
-		userAgent := c.Context().UserAgent()
+		userAgent := c.Get(fiber.HeaderUserAgent)
 		referer := c.Get(fiber.HeaderReferer)
 
-		ip := c.Context().RemoteIP().String()
+		ip := c.IP()
 		if len(c.IPs()) > 0 {
 			ip = c.IPs()[0]
 		}
@@ -252,7 +252,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		)
 
 		// custom context values
-		if v := c.Context().UserValue(customAttributesCtxKey); v != nil {
+		if v := c.Context().Value(customAttributesCtxKey); v != nil {
 			switch attrs := v.(type) {
 			case []slog.Attr:
 				attributes = append(attributes, attrs...)
@@ -280,7 +280,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 			msg = logErr.Error()
 		}
 
-		logger.LogAttrs(c.UserContext(), level, msg, attributes...)
+		logger.LogAttrs(c.Context(), level, msg, attributes...)
 
 		return err
 	}
@@ -288,7 +288,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 
 // GetRequestID returns the request identifier
 func GetRequestID(c fiber.Ctx) string {
-	requestID, ok := c.Context().UserValue("request-id").(string)
+	requestID, ok := c.Context().Value("request-id").(string)
 	if !ok {
 		return ""
 	}
@@ -297,15 +297,15 @@ func GetRequestID(c fiber.Ctx) string {
 }
 
 func AddCustomAttributes(c fiber.Ctx, attr slog.Attr) {
-	v := c.Context().UserValue(customAttributesCtxKey)
+	v := c.Context().Value(customAttributesCtxKey)
 	if v == nil {
-		c.Context().SetUserValue(customAttributesCtxKey, []slog.Attr{attr})
+		c.SetContext(context.WithValue(c.Context(), customAttributesCtxKey, []slog.Attr{attr}))
 		return
 	}
 
 	switch attrs := v.(type) {
 	case []slog.Attr:
-		c.Context().SetUserValue(customAttributesCtxKey, append(attrs, attr))
+		c.SetContext(context.WithValue(c.Context(), customAttributesCtxKey, append(attrs, attr)))
 	}
 }
 
