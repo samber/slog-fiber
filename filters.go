@@ -16,7 +16,7 @@ func Ignore(filter Filter) Filter { return filter }
 // Method
 func AcceptMethod(methods ...string) Filter {
 	return func(c fiber.Ctx) bool {
-		reqMethod := strings.ToLower(string(c.Context().Method()))
+		reqMethod := strings.ToLower(string(c.RequestCtx().Method()))
 
 		for _, method := range methods {
 			if strings.ToLower(method) == reqMethod {
@@ -30,7 +30,7 @@ func AcceptMethod(methods ...string) Filter {
 
 func IgnoreMethod(methods ...string) Filter {
 	return func(c fiber.Ctx) bool {
-		reqMethod := strings.ToLower(string(c.Context().Method()))
+		reqMethod := strings.ToLower(string(c.RequestCtx().Method()))
 
 		for _, method := range methods {
 			if strings.ToLower(method) == reqMethod {
