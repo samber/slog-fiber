@@ -1,0 +1,12 @@
+version: "0.2"
+ignorePaths: []
+dictionaryDefinitions: []
+dictionaries: []
+words:
+  - gofiber
+  - samber
+  - slogfiber
+  - slogformatter
+ignoreWords:
+  - crashme
+import: []

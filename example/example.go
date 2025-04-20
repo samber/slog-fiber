@@ -7,9 +7,9 @@ import (
 
 	"log/slog"
 
+	slogfiber "github.com/Aleksei-Badyaev/slog-fiber"
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/recover"
-	slogfiber "github.com/samber/slog-fiber"
 	slogformatter "github.com/samber/slog-formatter"
 )
 
