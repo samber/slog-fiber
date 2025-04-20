@@ -8,5 +8,11 @@ words:
   - slogfiber
   - slogformatter
 ignoreWords:
+  - andybalholm
   - crashme
+  - fxamacker
+  - goleak
+  - philhofer
+  - tinylib
+  - valyala
 import: []
