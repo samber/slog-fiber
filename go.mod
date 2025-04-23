@@ -1,4 +1,4 @@
-module github.com/Aleksei-Badyaev/slog-fiber
+module github.com/samber/slog-fiber
 
 go 1.23
 
