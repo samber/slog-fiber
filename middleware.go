@@ -320,7 +320,7 @@ func AddCustomAttributes(c *fiber.Ctx, attr slog.Attr) {
 }
 
 func extractTraceSpanID(ctx context.Context, withTraceID bool, withSpanID bool) []slog.Attr {
-	if !(withTraceID || withSpanID) {
+	if !withTraceID && !withSpanID {
 		return []slog.Attr{}
 	}
 
