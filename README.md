@@ -8,6 +8,7 @@
 [![Go report](https://goreportcard.com/badge/github.com/samber/slog-fiber)](https://goreportcard.com/report/github.com/samber/slog-fiber)
 [![Coverage](https://img.shields.io/codecov/c/github/samber/slog-fiber)](https://codecov.io/gh/samber/slog-fiber)
 [![Contributors](https://img.shields.io/github/contributors/samber/slog-fiber)](https://github.com/samber/slog-fiber/graphs/contributors)
+[![Network Dependents](https://dependents.info/samber/slog-fiber/badge)](https://dependents.info/samber/slog-fiber)
 [![License](https://img.shields.io/github/license/samber/slog-fiber)](./LICENSE)
 
 [Fiber](https://github.com/gofiber/fiber) middleware to log http requests using [slog](https://pkg.go.dev/log/slog).
@@ -69,6 +70,12 @@
 - [slog-nats](https://github.com/samber/slog-nats): A `slog` handler for `NATS`
 - [slog-parquet](https://github.com/samber/slog-parquet): A `slog` handler for `Parquet` + `Object Storage`
 - [slog-channel](https://github.com/samber/slog-channel): A `slog` handler for Go channels
+
+## Used by
+
+<a href="https://dependents.info/samber/slog-fiber">
+  <img src="https://dependents.info/samber/slog-fiber/image" />
+</a>
 
 ## 🚀 Install
 
