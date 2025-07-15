@@ -192,7 +192,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		}
 
 		// otel
-		baseAttributes = append(baseAttributes, extractTraceSpanID(c.UserContext(), config.WithTraceID, config.WithSpanID)...)
+		baseAttributes = append(baseAttributes, extractTraceSpanID(c.Context(), config.WithTraceID, config.WithSpanID)...)
 
 		// request body
 		requestAttributes = append(requestAttributes, slog.Int("length", len((c.Body()))))
@@ -297,7 +297,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 
 // GetRequestID returns the request identifier.
 func GetRequestID(c fiber.Ctx) string {
-	return GetRequestIDFromContext(c.Context())
+	return GetRequestIDFromContext(c.RequestCtx())
 }
 
 // GetRequestIDFromContext returns the request identifier from the context.
