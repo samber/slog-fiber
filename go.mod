@@ -1,12 +1,6 @@
 module github.com/samber/slog-fiber
 
-go 1.23
-
-<<<<<<< HEAD
-require golang.org/x/text v0.22.0 // indirect
-=======
-toolchain go1.24.2
->>>>>>> 746e28c (Fiber v3: upgrade to go-fiber v3.beta.4 (#51))
+go 1.23.0
 
 require (
 	github.com/fxamacker/cbor/v2 v2.7.0 // indirect
@@ -29,14 +23,14 @@ require (
 	github.com/samber/slog-formatter v1.2.0
 	github.com/samber/slog-multi v1.3.3 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.59.0 // indirect
-	go.opentelemetry.io/otel v1.29.0 // indirect
+	github.com/valyala/fasthttp v1.59.0
+	go.opentelemetry.io/otel v1.37.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
 )
 
 require (
 	github.com/gofiber/fiber/v3 v3.0.0-beta.4
 	github.com/google/uuid v1.6.0
-	go.opentelemetry.io/otel/trace v1.29.0
-	go.uber.org/goleak v1.2.1
+	go.opentelemetry.io/otel/trace v1.37.0
+	go.uber.org/goleak v1.3.0
 )
