@@ -23,13 +23,13 @@ require (
 	github.com/samber/slog-multi v1.1.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.69.0
-	go.opentelemetry.io/otel v1.19.0 // indirect
+	go.opentelemetry.io/otel v1.37.0 // indirect
 	golang.org/x/sys v0.40.0 // indirect
 )
 
 require (
 	github.com/gofiber/fiber/v3 v3.0.0
 	github.com/google/uuid v1.6.0
-	go.opentelemetry.io/otel/trace v1.19.0
+	go.opentelemetry.io/otel/trace v1.37.0
 	go.uber.org/goleak v1.3.0
 )
