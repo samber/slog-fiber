@@ -302,12 +302,12 @@ func GetRequestID(c fiber.Ctx) string {
 
 // GetRequestIDFromContext returns the request identifier from the context.
 func GetRequestIDFromContext(ctx context.Context) string {
-	requestID, ok := ctx.Value("request-id")
+	requestID, ok := ctx.Value("request-id").(string)
 	if !ok {
 		return ""
 	}
 
-	return requestID.(string)
+	return requestID
 }
 
 func AddCustomAttributes(c fiber.Ctx, attr slog.Attr) {
