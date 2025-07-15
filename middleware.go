@@ -12,7 +12,6 @@ import (
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/google/uuid"
-	"github.com/valyala/fasthttp"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -122,7 +121,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 			if requestID == "" {
 				requestID = uuid.New().String()
 			}
-			c.RequestCtx().SetUserValue("request-id", requestID)
+			c.Set("request-id", requestID)
 			c.Set("X-Request-ID", requestID)
 		}
 
@@ -141,7 +140,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		}
 
 		status := c.Response().StatusCode()
-		method := c.RequestCtx().Method()
+		method := c.Method()
 		host := c.Hostname()
 
 		params := make(map[string]string, len(c.Route().Params))
@@ -152,10 +151,10 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		route := c.Route().Path
 		end := time.Now()
 		latency := end.Sub(start)
-		userAgent := c.RequestCtx().UserAgent()
+		userAgent := c.Get(fiber.HeaderUserAgent)
 		referer := c.Get(fiber.HeaderReferer)
 
-		ip := c.RequestCtx().RemoteIP().String()
+		ip := c.IP()
 		if len(c.IPs()) > 0 {
 			ip = c.IPs()[0]
 		}
@@ -262,7 +261,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		)
 
 		// custom context values
-		if v := c.RequestCtx().UserValue(customAttributesCtxKey); v != nil {
+		if v := c.Context().Value(customAttributesCtxKey); v != nil {
 			switch attrs := v.(type) {
 			case []slog.Attr:
 				attributes = append(attributes, attrs...)
@@ -298,30 +297,29 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 
 // GetRequestID returns the request identifier.
 func GetRequestID(c fiber.Ctx) string {
-	return GetRequestIDFromContext(c.RequestCtx())
+	return GetRequestIDFromContext(c.Context())
 }
 
 // GetRequestIDFromContext returns the request identifier from the context.
-func GetRequestIDFromContext(ctx *fasthttp.RequestCtx) string {
-	requestID, ok := ctx.UserValue("request-id").(string)
+func GetRequestIDFromContext(ctx context.Context) string {
+	requestID, ok := ctx.Value("request-id")
 	if !ok {
 		return ""
 	}
 
-	return requestID
+	return requestID.(string)
 }
 
-// AddCustomAttributes adds custom attributes to the request context.
 func AddCustomAttributes(c fiber.Ctx, attr slog.Attr) {
-	v := c.RequestCtx().UserValue(customAttributesCtxKey)
+	v := c.Context().Value(customAttributesCtxKey)
 	if v == nil {
-		c.RequestCtx().SetUserValue(customAttributesCtxKey, attrs)
+		c.SetContext(context.WithValue(c.Context(), customAttributesCtxKey, attrs))
 		return
 	}
 
 	switch vAttrs := v.(type) {
 	case []slog.Attr:
-		c.RequestCtx().SetUserValue(customAttributesCtxKey, append(vAttrs, attrs...))
+		c.SetContext(context.WithValue(c.Context(), customAttributesCtxKey, append(vattrs, attrs...)))
 	}
 }
 
