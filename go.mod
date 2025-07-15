@@ -1,6 +1,5 @@
 module github.com/samber/slog-fiber
 
-
 go 1.23.0
 
 require (
@@ -10,6 +9,7 @@ require (
 	github.com/tinylib/msgp v1.2.5 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	golang.org/x/crypto v0.33.0 // indirect
+	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect
 	golang.org/x/net v0.35.0 // indirect
 	golang.org/x/text v0.22.0 // indirect
 )
@@ -24,10 +24,10 @@ require (
 	github.com/samber/slog-formatter v1.0.1
 	github.com/samber/slog-multi v1.1.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
-	github.com/valyala/fasthttp v1.58.0 // indirect
+	github.com/valyala/fasthttp v1.58.0
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	go.opentelemetry.io/otel v1.19.0 // indirect
-	golang.org/x/sys v0.28.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
 )
 
 require (
