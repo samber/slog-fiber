@@ -1,8 +1,7 @@
 module github.com/samber/slog-fiber
 
-go 1.23
 
-toolchain go1.24.1
+go 1.23.0
 
 require (
 	github.com/fxamacker/cbor/v2 v2.7.0 // indirect
@@ -10,10 +9,9 @@ require (
 	github.com/philhofer/fwd v1.1.3-0.20240916144458-20a13a1f6b7c // indirect
 	github.com/tinylib/msgp v1.2.5 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
-	golang.org/x/crypto v0.31.0 // indirect
-	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect
-	golang.org/x/net v0.31.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/crypto v0.33.0 // indirect
+	golang.org/x/net v0.35.0 // indirect
+	golang.org/x/text v0.22.0 // indirect
 )
 
 require (
@@ -36,5 +34,5 @@ require (
 	github.com/gofiber/fiber/v3 v3.0.0-beta.4
 	github.com/google/uuid v1.6.0
 	go.opentelemetry.io/otel/trace v1.19.0
-	go.uber.org/goleak v1.2.1
+	go.uber.org/goleak v1.3.0
 )

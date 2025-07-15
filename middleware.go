@@ -2,6 +2,7 @@ package slogfiber
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 	"sync"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/google/uuid"
+	"github.com/valyala/fasthttp"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -19,8 +21,8 @@ type customAttributesCtxKeyType struct{}
 var customAttributesCtxKey = customAttributesCtxKeyType{}
 
 var (
-	TraceIDKey   = "trace-id"
-	SpanIDKey    = "span-id"
+	TraceIDKey   = "trace_id"
+	SpanIDKey    = "span_id"
 	RequestIDKey = "id"
 
 	RequestBodyMaxSize  = 64 * 1024 // 64KB
@@ -132,8 +134,15 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 
 		err := c.Next()
 		if err != nil {
-			if err := errHandler(c, err); err != nil {
+			if err = errHandler(c, err); err != nil {
 				_ = c.SendStatus(fiber.StatusInternalServerError) //nolint:errcheck
+			}
+		}
+
+		// Pass thru filters and skip early the code below, to prevent unnecessary processing.
+		for _, filter := range config.Filters {
+			if !filter(c) {
+				return err
 			}
 		}
 
@@ -160,7 +169,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		baseAttributes := []slog.Attr{}
 
 		requestAttributes := []slog.Attr{
-			slog.Time("time", start),
+			slog.Time("time", start.UTC()),
 			slog.String("method", string(method)),
 			slog.String("host", host),
 			slog.String("path", path),
@@ -173,7 +182,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		}
 
 		responseAttributes := []slog.Attr{
-			slog.Time("time", end),
+			slog.Time("time", end.UTC()),
 			slog.Duration("latency", latency),
 			slog.Int("status", status),
 		}
@@ -259,12 +268,6 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 			}
 		}
 
-		for _, filter := range config.Filters {
-			if !filter(c) {
-				return err
-			}
-		}
-
 		logErr := err
 		if logErr == nil {
 			logErr = fiber.NewError(status)
@@ -275,9 +278,15 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		if status >= http.StatusInternalServerError {
 			level = config.ServerErrorLevel
 			msg = logErr.Error()
+			if msg == "" {
+				msg = fmt.Sprintf("HTTP error: %d %s", status, strings.ToLower(http.StatusText(status)))
+			}
 		} else if status >= http.StatusBadRequest && status < http.StatusInternalServerError {
 			level = config.ClientErrorLevel
 			msg = logErr.Error()
+			if msg == "" {
+				msg = fmt.Sprintf("HTTP error: %d %s", status, strings.ToLower(http.StatusText(status)))
+			}
 		}
 
 		logger.LogAttrs(c.Context(), level, msg, attributes...)
@@ -286,14 +295,19 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 	}
 }
 
-// GetRequestID returns the request identifier
+// GetRequestID returns the request identifier.
 func GetRequestID(c fiber.Ctx) string {
-	requestID, ok := c.Context().Value("request-id").(string)
+	return GetRequestIDFromContext(c.Context())
+}
+
+// GetRequestIDFromContext returns the request identifier from the context.
+func GetRequestIDFromContext(ctx context.Context) string {
+	requestID, ok := ctx.Value("request-id")
 	if !ok {
 		return ""
 	}
 
-	return requestID
+	return requestID.(string)
 }
 
 func AddCustomAttributes(c fiber.Ctx, attr slog.Attr) {
@@ -310,7 +324,7 @@ func AddCustomAttributes(c fiber.Ctx, attr slog.Attr) {
 }
 
 func extractTraceSpanID(ctx context.Context, withTraceID bool, withSpanID bool) []slog.Attr {
-	if !(withTraceID || withSpanID) {
+	if !withTraceID && !withSpanID {
 		return []slog.Attr{}
 	}
 

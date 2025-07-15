@@ -12,11 +12,27 @@
 
 [Fiber](https://github.com/gofiber/fiber) middleware to log http requests using [slog](https://pkg.go.dev/log/slog).
 
+<div align="center">
+  <hr>
+  <sup><b>Sponsored by:</b></sup>
+  <br>
+  <a href="https://quickwit.io?utm_campaign=github_sponsorship&utm_medium=referral&utm_content=samber-slog-fiber&utm_source=github">
+    <div>
+      <img src="https://github.com/samber/oops/assets/2951285/49aaaa2b-b8c6-4f21-909f-c12577bb6a2e" width="240" alt="Quickwit">
+    </div>
+    <div>
+      Cloud-native search engine for observability - An OSS alternative to Splunk, Elasticsearch, Loki, and Tempo.
+    </div>
+  </a>
+  <hr>
+</div>
+
 **See also:**
 
 - [slog-multi](https://github.com/samber/slog-multi): `slog.Handler` chaining, fanout, routing, failover, load balancing...
 - [slog-formatter](https://github.com/samber/slog-formatter): `slog` attribute formatting
 - [slog-sampling](https://github.com/samber/slog-sampling): `slog` sampling policy
+- [slog-mock](https://github.com/samber/slog-mock): `slog.Handler` for test purposes
 
 **HTTP middlewares:**
 
@@ -61,7 +77,7 @@
 go get github.com/samber/slog-fiber
 
 # Fiber v3 (beta)
-go get github.com/samber/slog-echo@fiber-v3
+go get github.com/samber/slog-fiber@fiber-v3
 ```
 
 **Compatibility**: go >= 1.21
@@ -96,8 +112,8 @@ Attributes will be injected in log payload.
 Other global parameters:
 
 ```go
-slogfiber.TraceIDKey = "trace-id"
-slogfiber.SpanIDKey = "span-id"
+slogfiber.TraceIDKey = "trace_id"
+slogfiber.SpanIDKey = "span_id"
 slogfiber.RequestBodyMaxSize  = 64 * 1024 // 64KB
 slogfiber.ResponseBodyMaxSize = 64 * 1024 // 64KB
 slogfiber.HiddenRequestHeaders = map[string]struct{}{ ... }
@@ -201,8 +217,10 @@ Available filters:
 - Accept / Ignore
 - AcceptMethod / IgnoreMethod
 - AcceptStatus / IgnoreStatus
-- AcceptStatusGreaterThan / IgnoreStatusLessThan
-- AcceptStatusGreaterThanOrEqual / IgnoreStatusLessThanOrEqual
+- AcceptStatusGreaterThan / IgnoreStatusGreaterThan
+- AcceptStatusLessThan / IgnoreStatusLessThan
+- AcceptStatusGreaterThanOrEqual / IgnoreStatusGreaterThanOrEqual
+- AcceptStatusLessThanOrEqual / IgnoreStatusLessThanOrEqual
 - AcceptPath / IgnorePath
 - AcceptPathContains / IgnorePathContains
 - AcceptPathPrefix / IgnorePathPrefix

@@ -2,6 +2,7 @@ package slogfiber
 
 import (
 	"regexp"
+	"slices"
 	"strings"
 
 	"github.com/gofiber/fiber/v3"
@@ -11,7 +12,7 @@ type Filter func(ctx fiber.Ctx) bool
 
 // Basic
 func Accept(filter Filter) Filter { return filter }
-func Ignore(filter Filter) Filter { return filter }
+func Ignore(filter Filter) Filter { return func(ctx fiber.Ctx) bool { return !filter(ctx) } }
 
 // Method
 func AcceptMethod(methods ...string) Filter {
@@ -45,25 +46,13 @@ func IgnoreMethod(methods ...string) Filter {
 // Status
 func AcceptStatus(statuses ...int) Filter {
 	return func(c fiber.Ctx) bool {
-		for _, status := range statuses {
-			if status == c.Response().StatusCode() {
-				return true
-			}
-		}
-
-		return false
+		return slices.Contains(statuses, c.Response().StatusCode())
 	}
 }
 
 func IgnoreStatus(statuses ...int) Filter {
 	return func(c fiber.Ctx) bool {
-		for _, status := range statuses {
-			if status == c.Response().StatusCode() {
-				return false
-			}
-		}
-
-		return true
+		return !slices.Contains(statuses, c.Response().StatusCode())
 	}
 }
 
@@ -73,46 +62,50 @@ func AcceptStatusGreaterThan(status int) Filter {
 	}
 }
 
-func IgnoreStatusLessThan(status int) Filter {
-	return func(c fiber.Ctx) bool {
-		return c.Response().StatusCode() < status
-	}
-}
-
 func AcceptStatusGreaterThanOrEqual(status int) Filter {
 	return func(c fiber.Ctx) bool {
 		return c.Response().StatusCode() >= status
 	}
 }
 
-func IgnoreStatusLessThanOrEqual(status int) Filter {
+func AcceptStatusLessThan(status int) Filter {
+	return func(c fiber.Ctx) bool {
+		return c.Response().StatusCode() < status
+	}
+}
+
+func AcceptStatusLessThanOrEqual(status int) Filter {
 	return func(c fiber.Ctx) bool {
 		return c.Response().StatusCode() <= status
 	}
 }
 
+func IgnoreStatusGreaterThan(status int) Filter {
+	return AcceptStatusLessThanOrEqual(status)
+}
+
+func IgnoreStatusGreaterThanOrEqual(status int) Filter {
+	return AcceptStatusLessThan(status)
+}
+
+func IgnoreStatusLessThan(status int) Filter {
+	return AcceptStatusGreaterThanOrEqual(status)
+}
+
+func IgnoreStatusLessThanOrEqual(status int) Filter {
+	return AcceptStatusGreaterThan(status)
+}
+
 // Path
 func AcceptPath(urls ...string) Filter {
 	return func(c fiber.Ctx) bool {
-		for _, url := range urls {
-			if c.Path() == url {
-				return true
-			}
-		}
-
-		return false
+		return slices.Contains(urls, c.Path())
 	}
 }
 
 func IgnorePath(urls ...string) Filter {
 	return func(c fiber.Ctx) bool {
-		for _, url := range urls {
-			if c.Path() == url {
-				return false
-			}
-		}
-
-		return true
+		return !slices.Contains(urls, c.Path())
 	}
 }
 
@@ -215,25 +208,13 @@ func IgnorePathMatch(regs ...regexp.Regexp) Filter {
 // Host
 func AcceptHost(hosts ...string) Filter {
 	return func(c fiber.Ctx) bool {
-		for _, host := range hosts {
-			if c.Hostname() == host {
-				return true
-			}
-		}
-
-		return false
+		return slices.Contains(hosts, c.Hostname())
 	}
 }
 
 func IgnoreHost(hosts ...string) Filter {
 	return func(c fiber.Ctx) bool {
-		for _, host := range hosts {
-			if c.Hostname() == host {
-				return false
-			}
-		}
-
-		return true
+		return !slices.Contains(hosts, c.Hostname())
 	}
 }
 
