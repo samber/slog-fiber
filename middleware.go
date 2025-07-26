@@ -191,7 +191,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		}
 
 		// otel
-		baseAttributes = append(baseAttributes, extractTraceSpanID(c.Context(), config.WithTraceID, config.WithSpanID)...)
+		baseAttributes = append(baseAttributes, extractTraceSpanID(c, config.WithTraceID, config.WithSpanID)...)
 
 		// request body
 		requestAttributes = append(requestAttributes, slog.Int("length", len((c.Body()))))
@@ -260,7 +260,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		)
 
 		// custom context values
-		if v := c.Context().Value(customAttributesCtxKey); v != nil {
+		if v := c.Value(customAttributesCtxKey); v != nil {
 			switch attrs := v.(type) {
 			case []slog.Attr:
 				attributes = append(attributes, attrs...)
@@ -288,7 +288,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 			}
 		}
 
-		logger.LogAttrs(c.Context(), level, msg, attributes...)
+		logger.LogAttrs(c, level, msg, attributes...)
 
 		return err
 	}
@@ -296,7 +296,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 
 // GetRequestID returns the request identifier.
 func GetRequestID(c fiber.Ctx) string {
-	return GetRequestIDFromContext(c.Context())
+	return GetRequestIDFromContext(c)
 }
 
 // GetRequestIDFromContext returns the request identifier from the context.
@@ -310,15 +310,15 @@ func GetRequestIDFromContext(ctx context.Context) string {
 }
 
 func AddCustomAttributes(c fiber.Ctx, attr slog.Attr) {
-	v := c.Context().Value(customAttributesCtxKey)
+	v := c.Value(customAttributesCtxKey)
 	if v == nil {
-		c.SetContext(context.WithValue(c.Context(), customAttributesCtxKey, []slog.Attr{attr}))
+		c.Locals(customAttributesCtxKey, []slog.Attr{attr})
 		return
 	}
 
 	switch attrs := v.(type) {
 	case []slog.Attr:
-		c.SetContext(context.WithValue(c.Context(), customAttributesCtxKey, append(attrs, attr)))
+		c.Locals(customAttributesCtxKey, append(attrs, attr))
 	}
 }
 
