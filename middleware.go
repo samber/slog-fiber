@@ -306,16 +306,16 @@ func GetRequestIDFromContext(ctx *fasthttp.RequestCtx) string {
 }
 
 // AddCustomAttributes adds custom attributes to the request context.
-func AddCustomAttributes(c *fiber.Ctx, attr slog.Attr) {
+func AddCustomAttributes(c *fiber.Ctx, attrs ...slog.Attr) {
 	v := c.Context().UserValue(customAttributesCtxKey)
 	if v == nil {
-		c.Context().SetUserValue(customAttributesCtxKey, []slog.Attr{attr})
+		c.Context().SetUserValue(customAttributesCtxKey, attrs)
 		return
 	}
 
-	switch attrs := v.(type) {
+	switch vAttrs := v.(type) {
 	case []slog.Attr:
-		c.Context().SetUserValue(customAttributesCtxKey, append(attrs, attr))
+		c.Context().SetUserValue(customAttributesCtxKey, append(vAttrs, attrs...))
 	}
 }
 
