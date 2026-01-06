@@ -67,7 +67,7 @@ type Config struct {
 // Requests with errors are logged using slog.Error().
 // Requests without errors are logged using slog.Info().
 func New(logger *slog.Logger) fiber.Handler {
-	return NewWithConfig(logger, Config{})
+	return NewWithConfig(logger, DefaultConfig())
 }
 
 // NewWithFilters returns a fiber.Handler (middleware) that logs requests using slog.
