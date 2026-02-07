@@ -82,11 +82,11 @@
 ## 🚀 Install
 
 ```sh
-# Fiber v2 (current)
+# Fiber v3 (current)
 go get github.com/samber/slog-fiber
 
-# Fiber v3 (beta)
-go get github.com/samber/slog-fiber@fiber-v3
+# Fiber v2 (beta)
+go get github.com/samber/slog-fiber@fiber-v2
 ```
 
 **Compatibility**: go >= 1.21
