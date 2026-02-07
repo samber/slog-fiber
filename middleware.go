@@ -39,6 +39,7 @@ var (
 		"set-cookie": {},
 	}
 
+	RequestIDContextKey = "request-id"
 	// Formatted with http.CanonicalHeaderKey
 	RequestIDHeaderKey = "X-Request-Id"
 )
@@ -121,8 +122,8 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 			if requestID == "" {
 				requestID = uuid.New().String()
 			}
-			c.Set("request-id", requestID)
-			c.Set("X-Request-ID", requestID)
+			c.Locals(RequestIDContextKey, requestID)
+			c.Set(RequestIDHeaderKey, requestID)
 		}
 
 		err := c.Next()
@@ -192,7 +193,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		}
 
 		// otel
-		baseAttributes = append(baseAttributes, extractTraceSpanID(c.Context(), config.WithTraceID, config.WithSpanID)...)
+		baseAttributes = append(baseAttributes, extractTraceSpanID(c, config.WithTraceID, config.WithSpanID)...)
 
 		// request body
 		requestAttributes = append(requestAttributes, slog.Int("length", len((c.Body()))))
@@ -261,7 +262,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 		)
 
 		// custom context values
-		if v := c.Context().Value(customAttributesCtxKey); v != nil {
+		if v := c.Locals(customAttributesCtxKey); v != nil {
 			switch attrs := v.(type) {
 			case []slog.Attr:
 				attributes = append(attributes, attrs...)
@@ -289,7 +290,7 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 			}
 		}
 
-		logger.LogAttrs(c.Context(), level, msg, attributes...)
+		logger.LogAttrs(c, level, msg, attributes...)
 
 		return err
 	}
@@ -297,12 +298,12 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 
 // GetRequestID returns the request identifier.
 func GetRequestID(c fiber.Ctx) string {
-	return GetRequestIDFromContext(c.Context())
+	return GetRequestIDFromContext(c)
 }
 
 // GetRequestIDFromContext returns the request identifier from the context.
 func GetRequestIDFromContext(ctx context.Context) string {
-	requestID, ok := ctx.Value("request-id").(string)
+	requestID, ok := ctx.Value(RequestIDContextKey).(string)
 	if !ok {
 		return ""
 	}
@@ -310,16 +311,16 @@ func GetRequestIDFromContext(ctx context.Context) string {
 	return requestID
 }
 
-func AddCustomAttributes(c fiber.Ctx, attr slog.Attr) {
-	v := c.Context().Value(customAttributesCtxKey)
+func AddCustomAttributes(c fiber.Ctx, attrs ...slog.Attr) {
+	v := c.Value(customAttributesCtxKey)
 	if v == nil {
-		c.SetContext(context.WithValue(c.Context(), customAttributesCtxKey, attrs))
+		c.Locals(customAttributesCtxKey, attrs)
 		return
 	}
 
 	switch vAttrs := v.(type) {
 	case []slog.Attr:
-		c.SetContext(context.WithValue(c.Context(), customAttributesCtxKey, append(vattrs, attrs...)))
+		c.Locals(customAttributesCtxKey, append(vAttrs, attrs...))
 	}
 }
 
