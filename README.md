@@ -128,6 +128,7 @@ slogfiber.RequestBodyMaxSize  = 64 * 1024 // 64KB
 slogfiber.ResponseBodyMaxSize = 64 * 1024 // 64KB
 slogfiber.HiddenRequestHeaders = map[string]struct{}{ ... }
 slogfiber.HiddenResponseHeaders = map[string]struct{}{ ... }
+slogfiber.RequestIDContextKey = "request-id"
 slogfiber.RequestIDHeaderKey = "X-Request-Id"
 ```
 
