@@ -89,7 +89,7 @@ go get github.com/samber/slog-fiber
 go get github.com/samber/slog-fiber@fiber-v2
 ```
 
-**Compatibility**: go >= 1.21
+**Compatibility**: go >= 1.25
 
 No breaking changes will be made to exported APIs before v2.0.0.
 
