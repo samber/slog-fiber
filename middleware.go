@@ -58,6 +58,7 @@ type Config struct {
 	WithSpanID         bool
 	WithTraceID        bool
 	WithClientIP       bool
+	WithCustomMessage  func(c fiber.Ctx, err error) string
 
 	Filters []Filter
 }
@@ -96,6 +97,7 @@ func DefaultConfig() Config {
 		WithSpanID:         false,
 		WithTraceID:        false,
 		WithClientIP:       true,
+		WithCustomMessage:  nil,
 
 		Filters: []Filter{},
 	}
@@ -288,6 +290,10 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 			if msg == "" {
 				msg = fmt.Sprintf("HTTP error: %d %s", status, strings.ToLower(http.StatusText(status)))
 			}
+		}
+
+		if config.WithCustomMessage != nil {
+			msg = config.WithCustomMessage(c, logErr)
 		}
 
 		logger.LogAttrs(c, level, msg, attributes...)
