@@ -112,6 +112,7 @@ type Config struct {
 	WithSpanID         bool
 	WithTraceID        bool
 	WithClientIP       bool
+	WithCustomMessage  func(c fiber.Ctx, err error) string
 
 	Filters []Filter
 }
