@@ -9,7 +9,6 @@ require (
 	github.com/samber/slog-common v0.20.0 // indirect
 	github.com/tinylib/msgp v1.6.3 // indirect
 	golang.org/x/crypto v0.47.0 // indirect
-	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1 // indirect
 	golang.org/x/net v0.49.0 // indirect
 	golang.org/x/text v0.33.0 // indirect
 )
@@ -33,5 +32,4 @@ require (
 	github.com/gofiber/fiber/v3 v3.0.0
 	github.com/google/uuid v1.6.0
 	go.opentelemetry.io/otel/trace v1.40.0
-	go.uber.org/goleak v1.3.0
 )
