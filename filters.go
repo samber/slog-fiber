@@ -16,30 +16,22 @@ func Ignore(filter Filter) Filter { return func(ctx fiber.Ctx) bool { return !fi
 
 // Method
 func AcceptMethod(methods ...string) Filter {
+	for i := range methods {
+		methods[i] = strings.ToLower(methods[i])
+	}
+
 	return func(c fiber.Ctx) bool {
-		reqMethod := strings.ToLower(c.Method())
-
-		for _, method := range methods {
-			if strings.ToLower(method) == reqMethod {
-				return true
-			}
-		}
-
-		return false
+		return slices.Contains(methods, strings.ToLower(c.Method()))
 	}
 }
 
 func IgnoreMethod(methods ...string) Filter {
+	for i := range methods {
+		methods[i] = strings.ToLower(methods[i])
+	}
+
 	return func(c fiber.Ctx) bool {
-		reqMethod := strings.ToLower(c.Method())
-
-		for _, method := range methods {
-			if strings.ToLower(method) == reqMethod {
-				return false
-			}
-		}
-
-		return true
+		return !slices.Contains(methods, strings.ToLower(c.Method()))
 	}
 }
 
@@ -123,8 +115,9 @@ func AcceptPathContains(parts ...string) Filter {
 
 func IgnorePathContains(parts ...string) Filter {
 	return func(c fiber.Ctx) bool {
+		path := c.Path()
 		for _, part := range parts {
-			if strings.Contains(c.Path(), part) {
+			if strings.Contains(path, part) {
 				return false
 			}
 		}
@@ -135,8 +128,9 @@ func IgnorePathContains(parts ...string) Filter {
 
 func AcceptPathPrefix(prefixs ...string) Filter {
 	return func(c fiber.Ctx) bool {
+		path := c.Path()
 		for _, prefix := range prefixs {
-			if strings.HasPrefix(c.Path(), prefix) {
+			if strings.HasPrefix(path, prefix) {
 				return true
 			}
 		}
@@ -147,8 +141,9 @@ func AcceptPathPrefix(prefixs ...string) Filter {
 
 func IgnorePathPrefix(prefixs ...string) Filter {
 	return func(c fiber.Ctx) bool {
+		path := c.Path()
 		for _, prefix := range prefixs {
-			if strings.HasPrefix(c.Path(), prefix) {
+			if strings.HasPrefix(path, prefix) {
 				return false
 			}
 		}
@@ -157,10 +152,11 @@ func IgnorePathPrefix(prefixs ...string) Filter {
 	}
 }
 
-func AcceptPathSuffix(prefixs ...string) Filter {
+func AcceptPathSuffix(suffixs ...string) Filter {
 	return func(c fiber.Ctx) bool {
-		for _, prefix := range prefixs {
-			if strings.HasPrefix(c.Path(), prefix) {
+		path := c.Path()
+		for _, suffix := range suffixs {
+			if strings.HasSuffix(path, suffix) {
 				return true
 			}
 		}
@@ -171,8 +167,9 @@ func AcceptPathSuffix(prefixs ...string) Filter {
 
 func IgnorePathSuffix(suffixs ...string) Filter {
 	return func(c fiber.Ctx) bool {
+		path := c.Path()
 		for _, suffix := range suffixs {
-			if strings.HasSuffix(c.Path(), suffix) {
+			if strings.HasSuffix(path, suffix) {
 				return false
 			}
 		}
@@ -183,8 +180,9 @@ func IgnorePathSuffix(suffixs ...string) Filter {
 
 func AcceptPathMatch(regs ...regexp.Regexp) Filter {
 	return func(c fiber.Ctx) bool {
+		path := c.Path()
 		for _, reg := range regs {
-			if reg.Match([]byte(c.Path())) {
+			if reg.MatchString(path) {
 				return true
 			}
 		}
@@ -195,8 +193,9 @@ func AcceptPathMatch(regs ...regexp.Regexp) Filter {
 
 func IgnorePathMatch(regs ...regexp.Regexp) Filter {
 	return func(c fiber.Ctx) bool {
+		path := c.Path()
 		for _, reg := range regs {
-			if reg.Match([]byte(c.Path())) {
+			if reg.MatchString(path) {
 				return false
 			}
 		}
@@ -244,8 +243,9 @@ func IgnoreHostContains(parts ...string) Filter {
 
 func AcceptHostPrefix(prefixs ...string) Filter {
 	return func(c fiber.Ctx) bool {
+		host := c.Hostname()
 		for _, prefix := range prefixs {
-			if strings.HasPrefix(c.Hostname(), prefix) {
+			if strings.HasPrefix(host, prefix) {
 				return true
 			}
 		}
@@ -256,8 +256,9 @@ func AcceptHostPrefix(prefixs ...string) Filter {
 
 func IgnoreHostPrefix(prefixs ...string) Filter {
 	return func(c fiber.Ctx) bool {
+		host := c.Hostname()
 		for _, prefix := range prefixs {
-			if strings.HasPrefix(c.Hostname(), prefix) {
+			if strings.HasPrefix(host, prefix) {
 				return false
 			}
 		}
@@ -266,10 +267,11 @@ func IgnoreHostPrefix(prefixs ...string) Filter {
 	}
 }
 
-func AcceptHostSuffix(prefixs ...string) Filter {
+func AcceptHostSuffix(suffixs ...string) Filter {
 	return func(c fiber.Ctx) bool {
-		for _, prefix := range prefixs {
-			if strings.HasPrefix(c.Hostname(), prefix) {
+		host := c.Hostname()
+		for _, suffix := range suffixs {
+			if strings.HasSuffix(host, suffix) {
 				return true
 			}
 		}
@@ -280,8 +282,9 @@ func AcceptHostSuffix(prefixs ...string) Filter {
 
 func IgnoreHostSuffix(suffixs ...string) Filter {
 	return func(c fiber.Ctx) bool {
+		host := c.Hostname()
 		for _, suffix := range suffixs {
-			if strings.HasSuffix(c.Hostname(), suffix) {
+			if strings.HasSuffix(host, suffix) {
 				return false
 			}
 		}
@@ -292,8 +295,9 @@ func IgnoreHostSuffix(suffixs ...string) Filter {
 
 func AcceptHostMatch(regs ...regexp.Regexp) Filter {
 	return func(c fiber.Ctx) bool {
+		host := c.Hostname()
 		for _, reg := range regs {
-			if reg.Match([]byte(c.Hostname())) {
+			if reg.MatchString(host) {
 				return true
 			}
 		}
@@ -304,8 +308,9 @@ func AcceptHostMatch(regs ...regexp.Regexp) Filter {
 
 func IgnoreHostMatch(regs ...regexp.Regexp) Filter {
 	return func(c fiber.Ctx) bool {
+		host := c.Hostname()
 		for _, reg := range regs {
-			if reg.Match([]byte(c.Hostname())) {
+			if reg.MatchString(host) {
 				return false
 			}
 		}
