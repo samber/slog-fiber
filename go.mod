@@ -32,5 +32,4 @@ require (
 	github.com/gofiber/fiber/v3 v3.2.0
 	github.com/google/uuid v1.6.0
 	go.opentelemetry.io/otel/trace v1.41.0
-	go.uber.org/goleak v1.3.0
 )
