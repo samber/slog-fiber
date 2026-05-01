@@ -120,6 +120,10 @@ type Config struct {
 
 Attributes will be injected in log payload.
 
+When `WithRequestID` is enabled, the request ID is also set as the `X-Request-Id` response header (customizable via `slogfiber.RequestIDHeaderKey`).
+
+When `WithTraceID` is enabled and an active OpenTelemetry span exists, the trace ID is also set as a response header. The header key defaults to `"X-Trace-Id"` and is customizable via `slogfiber.TraceIDHeaderKey`.
+
 Other global parameters:
 
 ```go
@@ -131,6 +135,7 @@ slogfiber.HiddenRequestHeaders = map[string]struct{}{ ... }
 slogfiber.HiddenResponseHeaders = map[string]struct{}{ ... }
 slogfiber.RequestIDContextKey = "request-id"
 slogfiber.RequestIDHeaderKey = "X-Request-Id"
+slogfiber.TraceIDHeaderKey = "X-Trace-Id"
 ```
 
 ### Minimal
