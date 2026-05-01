@@ -42,6 +42,7 @@ var (
 	RequestIDContextKey = "request-id"
 	// Formatted with http.CanonicalHeaderKey
 	RequestIDHeaderKey = "X-Request-Id"
+	TraceIDHeaderKey = "X-Trace-Id"
 )
 
 type Config struct {
@@ -126,6 +127,15 @@ func NewWithConfig(logger *slog.Logger, config Config) fiber.Handler {
 			}
 			c.Locals(RequestIDContextKey, requestID)
 			c.Set(RequestIDHeaderKey, requestID)
+		}
+
+		if config.WithTraceID {
+			span := trace.SpanFromContext(c)
+			if span.IsRecording() {
+				if spanCtx := span.SpanContext(); spanCtx.HasTraceID() {
+					c.Set(TraceIDHeaderKey, spanCtx.TraceID().String())
+				}
+			}
 		}
 
 		err := c.Next()
