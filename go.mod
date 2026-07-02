@@ -8,9 +8,9 @@ require (
 	github.com/philhofer/fwd v1.2.0 // indirect
 	github.com/samber/slog-common v0.21.0 // indirect
 	github.com/tinylib/msgp v1.6.4 // indirect
-	golang.org/x/crypto v0.50.0 // indirect
-	golang.org/x/net v0.53.0 // indirect
-	golang.org/x/text v0.36.0 // indirect
+	golang.org/x/crypto v0.51.0 // indirect
+	golang.org/x/net v0.55.0 // indirect
+	golang.org/x/text v0.37.0 // indirect
 )
 
 require (
@@ -25,7 +25,7 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.70.0 // indirect
 	go.opentelemetry.io/otel v1.44.0 // indirect
-	golang.org/x/sys v0.43.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
 )
 
 require (
