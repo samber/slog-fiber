@@ -1,6 +1,6 @@
 module github.com/samber/slog-fiber
 
-go 1.25.0
+go 1.26.0
 
 require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
@@ -24,13 +24,13 @@ require (
 	github.com/samber/slog-multi v1.8.0 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.72.0 // indirect
-	go.opentelemetry.io/otel v1.44.0 // indirect
+	go.opentelemetry.io/otel v1.47.0 // indirect
 	golang.org/x/sys v0.46.0 // indirect
 )
 
 require (
 	github.com/gofiber/fiber/v3 v3.4.0
 	github.com/google/uuid v1.6.0
-	go.opentelemetry.io/otel/trace v1.44.0
+	go.opentelemetry.io/otel/trace v1.47.0
 	go.uber.org/goleak v1.3.0
 )
